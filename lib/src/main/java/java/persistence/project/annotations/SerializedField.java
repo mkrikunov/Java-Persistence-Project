@@ -2,6 +2,8 @@ package java.persistence.project.annotations;
 
 import java.lang.annotation.*;
 
-public class SerializedField {
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SerializedField {
 
 }

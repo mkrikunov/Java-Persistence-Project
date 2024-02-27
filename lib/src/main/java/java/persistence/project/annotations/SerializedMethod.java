@@ -2,6 +2,8 @@ package java.persistence.project.annotations;
 
 import java.lang.annotation.*;
 
-public class SerializedMethod {
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SerializedMethod {
 
 }
