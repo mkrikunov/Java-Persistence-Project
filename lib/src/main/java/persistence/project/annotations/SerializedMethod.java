@@ -1,10 +1,11 @@
-package java.persistence.project.annotations;
+package persistence.project.annotations;
 
 import java.lang.annotation.*;
 
-@Target(ElementType.CONSTRUCTOR)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SerializedConstructor {
+public @interface SerializedMethod {
+  String name(); // Название метода
   String returnType();
   String[] parameters() default {};
   String[] parametersTypes() default {};

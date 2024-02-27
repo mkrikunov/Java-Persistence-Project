@@ -1,4 +1,4 @@
-package java.persistence.project.annotations;
+package persistence.project.annotations;
 
 import java.lang.annotation.*;
 
