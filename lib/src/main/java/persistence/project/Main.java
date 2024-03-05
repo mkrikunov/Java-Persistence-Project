@@ -1,20 +1,26 @@
 package persistence.project;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
-import persistence.project.examples.Animal;
 
 public class Main {
 
-  public void serialize() {
-    Animal obj = new Animal("Cat");
-    Field[] fields = Animal.class.getDeclaredFields();
+  private final OutputStream outputStream;
 
-    System.out.println("Fields");
+  public Main(String filePath) throws FileNotFoundException {
+    outputStream = new FileOutputStream(filePath);
+  }
+
+  public void serialize(Object object) {
+    Field[] fields = object.getClass().getDeclaredFields();
+
     for (Field field : fields) {
       field.setAccessible(true);
       Object value;
       try {
-        value = field.get(obj);
+        value = field.get(object);
       } catch (IllegalAccessException e) {
         throw new RuntimeException(e);
       }
@@ -23,9 +29,12 @@ public class Main {
       int modifiers = field.getModifiers();
       String access = java.lang.reflect.Modifier.toString(modifiers);
 
+      //outputStream.write();
       System.out.println("Value: " + value);
       System.out.println("Type: " + type);
       System.out.println("Access: " + access);
     }
   }
+
+
 }
