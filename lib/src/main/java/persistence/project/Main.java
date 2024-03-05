@@ -16,6 +16,8 @@ public class Main {
   }
 
   public void serialize(Object object) {
+    String className = object.getClass().getName();
+
     Field[] fields = object.getClass().getDeclaredFields();
     int n = fields.length;
     List<String> names = new ArrayList<>(n);
@@ -39,23 +41,29 @@ public class Main {
       modifiers.add(access);
     }
 
-    writeToFile(values, types, modifiers, names, n);
+    writeToFile(className, values, types, modifiers, names, n);
   }
 
-  private void writeToFile(List<Object> values, List<Class<?>> types, List<String> modifiers,
+  private void writeToFile(String className, List<Object> values, List<Class<?>> types, List<String> modifiers,
       List<String> names, int n) {
     try (OutputStream outputStream = new FileOutputStream(filePath, true)) {
       outputStream.write("{\n".getBytes());
       outputStream.write("  \"class\": {\n".getBytes());
       outputStream.write("    \"id\": 1,\n".getBytes());
-      outputStream.write("    \"name\": \"ExampleClass\",\n".getBytes());
-      outputStream.write("    \"fields\": [\n      {\n".getBytes());
+      outputStream.write(("    \"name\": \"" + className + "\",\n").getBytes());
+      outputStream.write("    \"fields\": [\n".getBytes());
 
       for (int i = 0; i < n; i++) {
+        outputStream.write("      {\n".getBytes());
         outputStream.write(("        \"name\": \"" + names.get(i) + "\",\n").getBytes());
         outputStream.write(("        \"type\": \"" + types.get(i) + "\",\n").getBytes());
         outputStream.write(("        \"value\": \"" + values.get(i) + "\",\n").getBytes());
-        outputStream.write(("        \"access\": \"" + modifiers.get(i) + "\"\n      }\n").getBytes());
+        outputStream.write(("        \"access\": \"" + modifiers.get(i) + "\"\n      }").getBytes());
+        if (i == n - 1) {
+          outputStream.write("\n".getBytes());
+        } else {
+          outputStream.write(",\n".getBytes());
+        }
       }
 
       outputStream.write("    ]\n  }\n}".getBytes());
