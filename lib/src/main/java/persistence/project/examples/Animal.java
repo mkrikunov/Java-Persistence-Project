@@ -1,5 +1,8 @@
 package persistence.project.examples;
 
+import persistence.project.annotations.SerializedClass;
+
+@SerializedClass
 public class Animal {
   private final String nameAnimal;
   private int ageAnimal;
