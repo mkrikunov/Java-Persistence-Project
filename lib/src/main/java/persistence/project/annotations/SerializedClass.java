@@ -6,5 +6,5 @@ import persistence.project.id.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SerializedClass {
-  Class<? extends IdGenerator> idGenerator() default DefaultIdGenerator.class;
+  //Class<? extends DefaultIdGenerator> idGenerator() default DefaultIdGenerator.class;
 }
