@@ -98,7 +98,7 @@ public class Main {
     if (object.getClass().isAnnotationPresent(SerializedClass.class)) {
 
       String id = "";
-      Field[] fields = object.getClass().getDeclaredFields();
+      Field[] fields = getAllFields(object.getClass());
       for (Field field : fields) {
         if (field.isAnnotationPresent(ID.class)) {
           if (field.getInt(object) == 0) {
@@ -107,10 +107,7 @@ public class Main {
         }
       }
 
-
       String className = object.getClass().getName();
-
-      Field[] fields = getAllFields(object.getClass());
 
       int n = fields.length;
       List<String> names = new ArrayList<>(n);

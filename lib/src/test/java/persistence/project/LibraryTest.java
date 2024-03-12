@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import persistence.project.examples.Animal;
 import persistence.project.examples.Cat;
 import persistence.project.examples.Dog;
 import persistence.project.id.DefaultIdGenerator;
@@ -20,10 +21,13 @@ class LibraryTest {
     main = new Main("src/main/resources/storage");
 
     Cat murkaCat = new Cat("Murka", 2, true);
-    main.serialize(murkaCat);
-
     Cat vasyaCat = new Cat("Vasya", 5, true);
-    main.serialize(vasyaCat);
+    try {
+      main.serialize(murkaCat);
+      main.serialize(vasyaCat);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test
@@ -32,7 +36,11 @@ class LibraryTest {
     main = new Main("src/main/resources/storage");
 
     Dog bobikDog = new Dog("Bobik", 1, false);
-    main.serialize(bobikDog);
+    try {
+      main.serialize(bobikDog);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test
@@ -41,7 +49,11 @@ class LibraryTest {
     main = new Main("src/main/resources/storage");
 
     Dog muhtarDog = new Dog("Muhtar", 10, true);
-    main.serialize(muhtarDog);
+    try {
+      main.serialize(muhtarDog);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test
@@ -49,7 +61,8 @@ class LibraryTest {
     DefaultIdGenerator IdGenerator = new DefaultIdGenerator();
     ArrayList<String> idList = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
-      String id = IdGenerator.generateId();
+      Animal animal = new Animal("Murka", i + 1, true);
+      String id = IdGenerator.generateId(animal);
       idList.add(id);
       assertNotNull(id);
       assertFalse(id.isEmpty());
