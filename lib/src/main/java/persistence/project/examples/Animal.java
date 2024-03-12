@@ -4,11 +4,15 @@ import persistence.project.annotations.SerializedClass;
 
 @SerializedClass
 public class Animal {
+
   private final String nameAnimal;
-  private int ageAnimal;
-  public Animal(String name, int age) {
+  private final int ageAnimal;
+  public boolean pet;
+
+  public Animal(String name, int age, boolean pet) {
     this.nameAnimal = name;
     this.ageAnimal = age;
+    this.pet = pet;
   }
 
   public String getNameAnimal() {
@@ -17,8 +21,5 @@ public class Animal {
 
   public int getAgeAnimal() {
     return ageAnimal;
-  }
-  public void setAgeAnimal(int newAge) {
-    this.ageAnimal = newAge;
   }
 }

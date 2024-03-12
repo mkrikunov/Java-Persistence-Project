@@ -1,6 +1,6 @@
 {
   "class": {
-    "id": 90,
+    "id": 3,
     "name": "persistence.project.examples.Animal",
     "fields": [
       {
@@ -14,6 +14,12 @@
         "type": "int",
         "value": "2",
         "access": "private"
+      },
+      {
+        "name": "pet",
+        "type": "boolean",
+        "value": "true",
+        "access": "public"
       }
     ]
   }

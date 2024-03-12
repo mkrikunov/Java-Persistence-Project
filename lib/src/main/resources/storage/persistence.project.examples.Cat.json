@@ -1,0 +1,74 @@
+[
+  {
+    "id": "1",
+    "name": "persistence.project.examples.Cat",
+    "fields": [
+      {
+        "name": "kittens",
+        "type": "java.util.List",
+        "value": [],
+        "access": "private"
+      },
+      {
+        "name": "pip",
+        "type": "java.lang.String",
+        "value": "pip",
+        "access": "public"
+      },
+      {
+        "name": "nameAnimal",
+        "type": "java.lang.String",
+        "value": "Murka",
+        "access": "private final"
+      },
+      {
+        "name": "ageAnimal",
+        "type": "int",
+        "value": 2,
+        "access": "private"
+      },
+      {
+        "name": "pet",
+        "type": "boolean",
+        "value": true,
+        "access": "public"
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "name": "persistence.project.examples.Cat",
+    "fields": [
+      {
+        "name": "kittens",
+        "type": "java.util.List",
+        "value": [],
+        "access": "private"
+      },
+      {
+        "name": "pip",
+        "type": "java.lang.String",
+        "value": "pip",
+        "access": "public"
+      },
+      {
+        "name": "nameAnimal",
+        "type": "java.lang.String",
+        "value": "Vasya",
+        "access": "private final"
+      },
+      {
+        "name": "ageAnimal",
+        "type": "int",
+        "value": 5,
+        "access": "private"
+      },
+      {
+        "name": "pet",
+        "type": "boolean",
+        "value": true,
+        "access": "public"
+      }
+    ]
+  }
+]

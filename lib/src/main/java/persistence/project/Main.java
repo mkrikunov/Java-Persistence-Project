@@ -1,28 +1,97 @@
 package persistence.project;
 
-import java.io.FileOutputStream;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import persistence.project.annotations.SerializedClass;
 import persistence.project.id.IdGenerator;
 
 public class Main {
 
-  private final String filePath;
+  private final String folderPath;
 
-  public Main(String filePath) {
-    this.filePath = filePath;
+  public Main(String folderPath) {
+    this.folderPath = folderPath;
+  }
+
+  public static Field[] getAllFields(Class<?> clazz) {
+    List<Field> fields = new ArrayList<>();
+    while (clazz != null) {
+      fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+      clazz = clazz.getSuperclass();
+    }
+    return fields.toArray(new Field[0]);
+  }
+
+  private Map<String, Object> dataToMap(String className, String id, List<Object> values,
+      List<Class<?>> types,
+      List<String> modifiers, List<String> names, int nFields) {
+    Map<String, Object> classMap = new LinkedHashMap<>(3);
+    classMap.put("id", id);
+    classMap.put("name", className);
+
+    List<Map<String, Object>> fields = new ArrayList<>(nFields);
+    for (int i = 0; i < nFields; i++) {
+      Map<String, Object> someField = new LinkedHashMap<>(nFields);
+      someField.put("name", names.get(i));
+      someField.put("type", types.get(i).getName());
+      someField.put("value", values.get(i));
+      someField.put("access", modifiers.get(i));
+      fields.add(someField);
+    }
+
+    classMap.put("fields", fields);
+    return classMap;
+  }
+
+  private void writeToFile(Map<String, Object> data) {
+    String jsonFilePath = folderPath + File.separator + data.get("name") + ".json";
+    File jsonFile = new File(jsonFilePath);
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    boolean created = false;
+    try {
+      created = jsonFile.createNewFile();
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+      System.exit(1);
+    }
+
+    try (RandomAccessFile file = new RandomAccessFile(jsonFile, "rw")) {
+      if (created) {
+        file.writeBytes("[\n]");
+        file.seek(file.length() - 1);
+      } else {
+        file.seek(file.length() - 1);
+        file.writeBytes(",");
+      }
+
+      String jsonData = gson.toJson(data);
+      file.writeBytes(jsonData);
+
+      file.writeBytes("]");
+    } catch (IOException e) {
+      if (jsonFile.delete()) {
+        jsonFile.delete();
+      }
+      throw new RuntimeException(e);
+    }
   }
 
   public void serialize(Object object) {
 
     if (object.getClass().isAnnotationPresent(SerializedClass.class)) {
 
-      SerializedClass serializedClassAnnotation = object.getClass().getAnnotation(SerializedClass.class);
+      SerializedClass serializedClassAnnotation = object.getClass()
+          .getAnnotation(SerializedClass.class);
       Class<? extends IdGenerator> idGeneratorClass = serializedClassAnnotation.idGenerator();
 
       String id = "";
@@ -36,10 +105,10 @@ public class Main {
         throw new RuntimeException(e);
       }
 
-
       String className = object.getClass().getName();
 
-      Field[] fields = object.getClass().getDeclaredFields();
+      Field[] fields = getAllFields(object.getClass());
+
       int n = fields.length;
       List<String> names = new ArrayList<>(n);
       List<Object> values = new ArrayList<>(n);
@@ -62,39 +131,12 @@ public class Main {
         modifiers.add(access);
       }
 
-      writeToFile(className, id, values, types, modifiers, names, n);
+      writeToFile(dataToMap(className, id, values, types, modifiers, names, n));
 
 
     } else {
-      System.out.println("Класс " + object.getClass().getName() + " не помечен аннотацией SerializedClass");
-    }
-  }
-
-  private void writeToFile(String className, String id, List<Object> values, List<Class<?>> types,
-      List<String> modifiers, List<String> names, int n) {
-    try (OutputStream outputStream = new FileOutputStream(filePath, true)) {
-      outputStream.write("{\n".getBytes());
-      outputStream.write("  \"class\": {\n".getBytes());
-      outputStream.write(("    \"id\": " + id + ",\n").getBytes());
-      outputStream.write(("    \"name\": \"" + className + "\",\n").getBytes());
-      outputStream.write("    \"fields\": [\n".getBytes());
-
-      for (int i = 0; i < n; i++) {
-        outputStream.write("      {\n".getBytes());
-        outputStream.write(("        \"name\": \"" + names.get(i) + "\",\n").getBytes());
-        outputStream.write(("        \"type\": \"" + types.get(i) + "\",\n").getBytes());
-        outputStream.write(("        \"value\": \"" + values.get(i) + "\",\n").getBytes());
-        outputStream.write(("        \"access\": \"" + modifiers.get(i) + "\"\n      }").getBytes());
-        if (i == n - 1) {
-          outputStream.write("\n".getBytes());
-        } else {
-          outputStream.write(",\n".getBytes());
-        }
-      }
-
-      outputStream.write("    ]\n  }\n}".getBytes());
-    } catch (IOException e) {
-      System.out.println("Ошибка при добавлении данных в файл: " + e.getMessage());
+      System.out.println("Class " + object.getClass().getName()
+          + " isn't marked with an annotation SerializedClass");
     }
   }
 }
