@@ -11,7 +11,7 @@ import persistence.project.id.*;
 
 class LibraryTest {
   @Test
-  void animalToJsonFile() {
+  void animalToJsonFile() throws IllegalAccessException {
     Animal obj = new Animal("Cat", 2);
     Main main;
     main = new Main("src/main/resources/data.json");
@@ -23,7 +23,8 @@ class LibraryTest {
     DefaultIdGenerator IdGenerator = new DefaultIdGenerator();
     ArrayList<String> idList = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
-      String id = IdGenerator.generateId();
+      Animal animal = new Animal("Murka", i + 1);
+      String id = IdGenerator.generateId(animal);
       idList.add(id);
       assertNotNull(id);
       assertFalse(id.isEmpty());

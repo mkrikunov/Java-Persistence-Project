@@ -4,42 +4,44 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import persistence.project.annotations.ID;
 import persistence.project.annotations.SerializedClass;
+import persistence.project.id.DefaultIdGenerator;
 import persistence.project.id.IdGenerator;
 
 public class Main {
 
   private final String filePath;
+  private final DefaultIdGenerator idGenerator;
 
   public Main(String filePath) {
+    this.idGenerator = new DefaultIdGenerator();
     this.filePath = filePath;
   }
 
-  public void serialize(Object object) {
+  public void serialize(Object object) throws IllegalAccessException {
+    serialize(object, idGenerator);
+  }
+
+  public void serialize(Object object, IdGenerator idGenerator) throws IllegalAccessException {
 
     if (object.getClass().isAnnotationPresent(SerializedClass.class)) {
 
-      SerializedClass serializedClassAnnotation = object.getClass().getAnnotation(SerializedClass.class);
-      Class<? extends IdGenerator> idGeneratorClass = serializedClassAnnotation.idGenerator();
-
       String id = "";
-      try {
-        IdGenerator idGenerator = idGeneratorClass.getDeclaredConstructor().newInstance();
-        id = idGenerator.generateId();
-      } catch (InstantiationException e) {
-        System.err.println(e.getMessage());
-        System.exit(1);
-      } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-        throw new RuntimeException(e);
+      Field[] fields = object.getClass().getDeclaredFields();
+      for (Field field : fields) {
+        if (field.isAnnotationPresent(ID.class)) {
+          if (field.getInt(object) == 0) {
+            id = idGenerator.generateId(object);
+          }
+        }
       }
 
 
       String className = object.getClass().getName();
 
-      Field[] fields = object.getClass().getDeclaredFields();
       int n = fields.length;
       List<String> names = new ArrayList<>(n);
       List<Object> values = new ArrayList<>(n);
@@ -61,7 +63,6 @@ public class Main {
         String access = java.lang.reflect.Modifier.toString(modifiersField);
         modifiers.add(access);
       }
-
       writeToFile(className, id, values, types, modifiers, names, n);
 
 
