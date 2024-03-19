@@ -6,15 +6,16 @@ import persistence.project.annotations.SerializedClass;
 @SerializedClass
 public class Animal {
 
-  private final String nameAnimal;
-  private final int ageAnimal;
+  private String nameAnimal;
+  private int ageAnimal;
   public boolean pet;
 
   @ID
   private int id;
+
   public Animal(String name, int age, boolean pet) {
-    this.nameAnimal = name;
-    this.ageAnimal = age;
+    setNameAnimal(name);
+    setAgeAnimal(age);
     this.pet = pet;
   }
 
@@ -24,5 +25,13 @@ public class Animal {
 
   public int getAgeAnimal() {
     return ageAnimal;
+  }
+
+  public void setNameAnimal(String nameAnimal) {
+    this.nameAnimal = nameAnimal;
+  }
+
+  public void setAgeAnimal(int ageAnimal) {
+    this.ageAnimal = ageAnimal;
   }
 }

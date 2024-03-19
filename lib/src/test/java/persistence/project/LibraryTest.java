@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import persistence.project.examples.Animal;
@@ -17,17 +19,28 @@ class LibraryTest {
 
   @Test
   void catToJsonFile() {
-    Main main;
-    main = new Main("src/main/resources/storage");
+    Main main = new Main("src/main/resources/storage");
+
+    Cat vasyaCat = new Cat("Vasya", 5, true);
 
     Cat murkaCat = new Cat("Murka", 2, true);
-    Cat vasyaCat = new Cat("Vasya", 5, true);
+    var nCats = 1;
+    List<Cat> cats = new ArrayList<>(nCats);
+    cats.add(vasyaCat);
+    murkaCat.setKittens(cats);
+
     try {
-      main.serialize(murkaCat);
       main.serialize(vasyaCat);
+      main.serialize(murkaCat);
     } catch (IllegalAccessException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Test
+  void deserializer() throws ClassNotFoundException {
+    Deserializer deserializer = new Deserializer();
+    deserializer.deserialize("src/main/resources/storage/persistence.project.examples.Cat.json");
   }
 
   @Test
@@ -45,8 +58,7 @@ class LibraryTest {
 
   @Test
   void dogToJsonFile2() {
-    Main main;
-    main = new Main("src/main/resources/storage");
+    Main main = new Main("src/main/resources/storage");
 
     Dog muhtarDog = new Dog("Muhtar", 10, true);
     try {
@@ -70,5 +82,14 @@ class LibraryTest {
 
     Set<String> set = new HashSet<>(idList);
     assertEquals(set.size(), idList.size()); //check for unique
+  }
+
+  @Test
+  public void test() {
+    Gson gson = new Gson();
+    Animal animal = new Animal("animal", 3, true);
+    System.out.println(gson.toJson(animal));
+    Cat cat = new Cat("cat", 2, true);
+    System.out.println(gson.toJson(cat));
   }
 }
