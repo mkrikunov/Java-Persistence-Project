@@ -1,15 +1,19 @@
 package persistence.project.examples;
 
+import com.google.gson.annotations.Expose;
 import persistence.project.annotations.ID;
 import persistence.project.annotations.SerializedClass;
 
 @SerializedClass
 public class Animal {
 
+  @Expose
   private String nameAnimal;
+  @Expose
   private int ageAnimal;
+  @Expose
   public boolean pet;
-
+  @Expose
   @ID
   private int id;
 

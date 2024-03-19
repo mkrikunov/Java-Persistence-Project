@@ -21,7 +21,7 @@ class LibraryTest {
   void catToJsonFile() {
     Main main = new Main("src/main/resources/storage");
 
-    Cat vasyaCat = new Cat("Vasya", 5, true);
+    Cat vasyaCat = new Cat("Bayun", 5, true);
 
     Cat murkaCat = new Cat("Murka", 2, true);
     var nCats = 1;

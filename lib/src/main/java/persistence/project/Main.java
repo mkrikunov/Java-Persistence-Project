@@ -21,10 +21,13 @@ public class Main {
     this.folderPath = folderPath;
   }
 
-  private void writeToFile(Object data, String className) {
+  private void writeToFile(Object data, String className) throws ClassNotFoundException {
     String jsonFilePath = folderPath + File.separator + className + ".json";
     File jsonFile = new File(jsonFilePath);
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    Gson gson = new GsonBuilder()
+        .excludeFieldsWithoutExposeAnnotation()
+        .setPrettyPrinting()
+        .create();
 
     boolean created = false;
     try {
@@ -43,7 +46,11 @@ public class Main {
         file.writeBytes(",");
       }
 
-      String jsonData = gson.toJson(data);
+      ////////////////
+      Wrapper wrapper = new Wrapper(data);
+      String jsonData = gson.toJson(wrapper);
+      ////////////////
+      //String jsonData = gson.toJson(data);
       file.writeBytes(jsonData);
 
       file.writeBytes("]");
@@ -73,7 +80,11 @@ public class Main {
         }
       }
       String className = object.getClass().getName();
-      writeToFile(object, className);
+      try {
+        writeToFile(object, className);
+      } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      }
     } else {
       System.out.println("Class " + object.getClass().getName()
           + " isn't marked with an annotation SerializedClass");

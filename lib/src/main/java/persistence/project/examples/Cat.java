@@ -1,11 +1,13 @@
 package persistence.project.examples;
 
+import com.google.gson.annotations.Expose;
 import java.util.List;
 import persistence.project.annotations.SerializedClass;
 
 @SerializedClass
 public class Cat extends Animal {
   private List<Cat> kittens;
+  @Expose
   public String pip = "pip";
 
   public Cat(String name, int age, boolean pet) {

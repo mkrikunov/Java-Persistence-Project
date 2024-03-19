@@ -4,4 +4,32 @@
   "ageAnimal": 5,
   "pet": true,
   "id": 0
+},{
+  "pip": "pip",
+  "nameAnimal": "Bayun",
+  "ageAnimal": 5,
+  "pet": true
+},{
+  "pip": "pip",
+  "nameAnimal": "Murka",
+  "ageAnimal": 2,
+  "pet": true
+},{
+  "clazz": {
+    "pip": "pip",
+    "nameAnimal": "Bayun",
+    "ageAnimal": 5,
+    "pet": true,
+    "id": 0
+  },
+  "technicalField": "someValue"
+},{
+  "clazz": {
+    "pip": "pip",
+    "nameAnimal": "Murka",
+    "ageAnimal": 2,
+    "pet": true,
+    "id": 0
+  },
+  "technicalField": "someValue"
 }]
