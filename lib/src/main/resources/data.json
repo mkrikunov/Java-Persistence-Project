@@ -1,26 +1,3 @@
 {
-  "class": {
-    "id": 3,
-    "name": "persistence.project.examples.Animal",
-    "fields": [
-      {
-        "name": "nameAnimal",
-        "type": "class java.lang.String",
-        "value": "Cat",
-        "access": "private final"
-      },
-      {
-        "name": "ageAnimal",
-        "type": "int",
-        "value": "2",
-        "access": "private"
-      },
-      {
-        "name": "pet",
-        "type": "boolean",
-        "value": "true",
-        "access": "public"
-      }
-    ]
-  }
+  "currID": 108
 }

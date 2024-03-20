@@ -44,6 +44,19 @@ class LibraryTest {
   }
 
   @Test
+  void animalToJsonFile() {
+    Main main;
+    main = new Main("src/main/resources/storage");
+
+    Animal someAnimal = new Animal("Murka", 6, true);
+    try {
+      main.serialize(someAnimal);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Test
   void dogToJsonFile() {
     Main main;
     main = new Main("src/main/resources/storage");
@@ -74,7 +87,7 @@ class LibraryTest {
     ArrayList<String> idList = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
       Animal animal = new Animal("Murka", i + 1, true);
-      String id = IdGenerator.generateId(animal);
+      String id = IdGenerator.generateId(animal, ""); //тут указать файл для теста вместо ""
       idList.add(id);
       assertNotNull(id);
       assertFalse(id.isEmpty());
