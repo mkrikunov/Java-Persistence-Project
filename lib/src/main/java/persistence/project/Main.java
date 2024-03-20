@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
-import persistence.project.annotations.ID;
 import java.util.Map;
 import persistence.project.annotations.SerializedClass;
 import persistence.project.id.DefaultIdGenerator;
@@ -36,8 +35,7 @@ public class Main {
   }
 
   private Map<String, Object> dataToMap(String className, String id, List<Object> values,
-      List<Class<?>> types,
-      List<String> modifiers, List<String> names, int nFields) {
+      List<String> names, int nFields) {
     Map<String, Object> classMap = new LinkedHashMap<>(3);
     classMap.put("id", id);
     classMap.put("name", className);
@@ -46,9 +44,7 @@ public class Main {
     for (int i = 0; i < nFields; i++) {
       Map<String, Object> someField = new LinkedHashMap<>(nFields);
       someField.put("name", names.get(i));
-      someField.put("type", types.get(i).getName());
       someField.put("value", values.get(i));
-      someField.put("access", modifiers.get(i));
       fields.add(someField);
     }
 
@@ -77,7 +73,9 @@ public class Main {
         file.writeBytes(",");
       }
 
-      String id = "";
+      String id = "1";
+      data.put("id", id);
+/*
       for (Field field : fields) {
         if (field.isAnnotationPresent(ID.class)) {
           if (field.getInt(object) == 0) {
@@ -86,29 +84,28 @@ public class Main {
           }
         }
       }
+*/
 
       String jsonData = gson.toJson(data);
       file.writeBytes(jsonData);
 
       file.writeBytes("]");
     } catch (IOException e) {
-      if (jsonFile.delete()) {
-        //jsonFile.delete();
+      if (!jsonFile.delete()) {
+        System.err.println("Failed to delete the created file");
       }
       throw new RuntimeException(e);
-    } catch (IllegalAccessException e) {
+    }/* catch (IllegalAccessException e) {
       throw new RuntimeException(e);
-    }
+    }*/
   }
 
   public void serialize(Object object) throws IllegalAccessException {
     serialize(object, idGenerator);
   }
 
-  public void serialize(Object object, IdGenerator idGenerator) throws IllegalAccessException {
-
+  public void serialize(Object object, IdGenerator idGenerator) {
     if (object.getClass().isAnnotationPresent(SerializedClass.class)) {
-
       String id = "";
       Field[] fields = getAllFields(object.getClass());
 
@@ -117,28 +114,18 @@ public class Main {
       int n = fields.length;
       List<String> names = new ArrayList<>(n);
       List<Object> values = new ArrayList<>(n);
-      List<Class<?>> types = new ArrayList<>(n);
-      List<String> modifiers = new ArrayList<>(n);
 
       for (Field field : fields) {
         field.setAccessible(true);
         names.add(field.getName());
-
         try {
           values.add(field.get(object));
         } catch (IllegalAccessException e) {
           throw new RuntimeException(e);
         }
-        types.add(field.getType());
-
-        int modifiersField = field.getModifiers();
-        String access = java.lang.reflect.Modifier.toString(modifiersField);
-        modifiers.add(access);
       }
 
-      writeToFile(dataToMap(className, id, values, types, modifiers, names, n), fields, object);
-
-
+      writeToFile(dataToMap(className, id, values, names, n), fields, object);
     } else {
       System.out.println("Class " + object.getClass().getName()
           + " isn't marked with an annotation SerializedClass");

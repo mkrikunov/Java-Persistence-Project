@@ -38,9 +38,11 @@ class LibraryTest {
   }
 
   @Test
-  void deserializer() throws ClassNotFoundException {
-    Deserializer deserializer = new Deserializer();
-    deserializer.deserialize("src/main/resources/storage/persistence.project.examples.Cat.json");
+  void deserializer() {
+    Cat cat = new Cat();
+    Deserializer deserializer = new Deserializer("src/main/resources/storage");
+    deserializer.deserialize(cat, "2");
+    System.out.println(cat);
   }
 
   @Test

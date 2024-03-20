@@ -1,35 +1,70 @@
-[{
-  "pip": "pip",
-  "nameAnimal": "Vasya",
-  "ageAnimal": 5,
-  "pet": true,
-  "id": 0
-},{
-  "pip": "pip",
-  "nameAnimal": "Bayun",
-  "ageAnimal": 5,
-  "pet": true
-},{
-  "pip": "pip",
-  "nameAnimal": "Murka",
-  "ageAnimal": 2,
-  "pet": true
-},{
-  "clazz": {
-    "pip": "pip",
-    "nameAnimal": "Bayun",
-    "ageAnimal": 5,
-    "pet": true,
-    "id": 0
-  },
-  "technicalField": "someValue"
-},{
-  "clazz": {
-    "pip": "pip",
-    "nameAnimal": "Murka",
-    "ageAnimal": 2,
-    "pet": true,
-    "id": 0
-  },
-  "technicalField": "someValue"
+[
+{
+  "currID": 1
+},
+  {
+    "id": "1",
+    "name": "persistence.project.examples.Cat",
+    "fields": [
+      {
+        "name": "kittens"
+      },
+      {
+        "name": "pip",
+        "value": "pip"
+      },
+      {
+        "name": "nameAnimal",
+        "value": "Bayun"
+      },
+      {
+        "name": "ageAnimal",
+        "value": 5
+      },
+      {
+        "name": "pet",
+        "value": true
+      },
+      {
+        "name": "id",
+        "value": 0
+      }
+    ]
+  },{
+  "id": "2",
+  "name": "persistence.project.examples.Cat",
+  "fields": [
+    {
+      "name": "kittens",
+      "value": [
+        {
+          "pip": "pip",
+          "nameAnimal": "Bayun",
+          "ageAnimal": 5,
+          "pet": true,
+          "id": 0
+        }
+      ]
+    },
+    {
+      "name": "pip",
+      "value": "pip"
+    },
+    {
+      "name": "nameAnimal",
+      "value": "Murka"
+    },
+    {
+      "name": "ageAnimal",
+      "value": 2
+    },
+    {
+      "name": "pet",
+      "value": true
+    },
+    {
+      "name": "id",
+      "value": 0
+    }
+  ]
 }]
