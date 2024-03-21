@@ -20,71 +20,46 @@ public class Deserializer {
     this.storagePath = storagePath;
   }
 
-  public static String getFileNameWithoutExtension(File file) {
-    String fileName = file.getName();
-    int lastIndex = fileName.lastIndexOf('.');
-    if (lastIndex > 0) {
-      return fileName.substring(0, lastIndex);
-    }
-    return fileName;
-  }
-
-  private Field findMeededField(Field[] fields, String nameField) throws NoSuchFieldException {
-    for (Field field : fields) {
-      if (field.getName().equals(nameField)) {
-        return field;
-      }
-    }
-    throw new NoSuchFieldException();
-  }
-
-  private void jsonToObject(Object object, List<Map<String, Object>> fields, Gson gson)
-      throws NoSuchFieldException {
-    Field[] allFields = null;
-
-    for (Map<String, Object> fieldFromJson : fields) {
-      Field field1;
-      var nameField = fieldFromJson.get("name").toString();
-      try {
-        field1 = object.getClass().getDeclaredField(nameField);
-      } catch (NoSuchFieldException e) {
-        if (allFields == null) {
-          allFields = getAllFields(object.getClass());
-        }
-        field1 = findMeededField(allFields, nameField);
-      }
-      field1.setAccessible(true);
-      Class<?> fieldType = field1.getType();
-      Object parsedValue = gson.fromJson(gson.toJson(fieldFromJson.get("value")), fieldType);
-      try {
-        field1.set(object, parsedValue);
-      } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
   public void deserialize(Object object, String id) {
-    String filePath = storagePath + File.separator + object.getClass().getName() + ".json";
-    try (FileReader reader = new FileReader(filePath)) {
-      Gson gson = new Gson();
-      Type listMapType = new TypeToken<List<Map<String, Object>>>() {
-      }.getType();
-      List<Map<String, Object>> allObjects = gson.fromJson(reader, listMapType);
-      //var currId = allObjects.get(0);
-      allObjects = allObjects.subList(1, allObjects.size());
-      for (Map<String, Object> someObj : allObjects) {
-        if (someObj.get("id").equals(id)) {
-          System.out.println(someObj);
-          List<Map<String, Object>> parsedValue = gson.fromJson(gson.toJson(someObj.get("fields")),
-              listMapType);
-          jsonToObject(object, parsedValue, gson);
+    Class<?> clazz = object.getClass();
+    List<Map<String, Object>> objectMaps = getObjectMaps(clazz.getName());
+    Map<String, Field> allFields = getAllFields(clazz);
+      for (Map<String, Object> someObjMap : objectMaps) {
+        if (someObjMap.get("id").equals(id)) {
+          @SuppressWarnings("unchecked")
+          List<Map<String, Object>> fields = (List<Map<String, Object>>) someObjMap.get("fields");
+          Gson gson = new Gson();
+          for (Map<String, Object> fieldMap : fields) {
+            // состоит из одной пары ключ значение
+            for (String fieldName : fieldMap.keySet()) {
+              Field field1 = allFields.get(fieldName);
+              field1.setAccessible(true);
+              Type fieldType = field1.getType();
+              Object value = gson.fromJson(fieldMap.get(fieldName).toString(), fieldType);
+              try {
+                field1.set(object, value);
+              } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+              }
+            }
+          }
+          return;
         }
       }
+  }
+
+  private List<Map<String, Object>> getObjectMaps(String className) {
+    String filePath = storagePath + File.separator + className + ".json";
+    List<Map<String, Object>> allObjects;
+    Gson gson = new Gson();
+    Type listMapType = new TypeToken<List<Map<String, Object>>>() {
+    }.getType();
+    try (FileReader reader = new FileReader(filePath)) {
+      allObjects = gson.fromJson(reader, listMapType);
     } catch (IOException e) {
       throw new RuntimeException(e);
-    } catch (NoSuchFieldException e) {
-      throw new RuntimeException(e);
     }
+    //var currId = allObjects.get(0);
+    return allObjects.subList(1, allObjects.size());
   }
 }

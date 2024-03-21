@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import persistence.project.examples.Animal;
 import persistence.project.examples.Cat;
 import persistence.project.examples.Dog;
+import persistence.project.examples.Horse;
 import persistence.project.id.DefaultIdGenerator;
 
 class LibraryTest {
@@ -100,11 +100,27 @@ class LibraryTest {
   }
 
   @Test
-  public void test() {
-    Gson gson = new Gson();
-    Animal animal = new Animal("animal", 3, true);
-    System.out.println(gson.toJson(animal));
-    Cat cat = new Cat("cat", 2, true);
-    System.out.println(gson.toJson(cat));
+  public void horseToJson() {
+    Main main = new Main("src/main/resources/storage");
+
+    Horse horse = new Horse();
+    horse.setNameAnimal("Angel");
+    horse.setAgeAnimal(5);
+    Horse horseSpouse = new Horse();
+    horseSpouse.setNameAnimal("Angel's spouse");
+    horse.setSpouse(horseSpouse);
+    try {
+      main.serialize(horse);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Test
+  void deserializeHorse() {
+    Horse horse = new Horse();
+    Deserializer deserializer = new Deserializer("src/main/resources/storage");
+    deserializer.deserialize(horse, "1");
+    System.out.println(horse);
   }
 }

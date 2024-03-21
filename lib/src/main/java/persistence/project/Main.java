@@ -6,14 +6,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import persistence.project.annotations.ID;
 import persistence.project.annotations.SerializedClass;
 import persistence.project.id.DefaultIdGenerator;
-import persistence.project.id.IdGenerator;
 
 public class Main {
 
@@ -25,34 +27,20 @@ public class Main {
     this.folderPath = folderPath;
   }
 
-  public static Field[] getAllFields(Class<?> clazz) {
-    List<Field> fields = new ArrayList<>();
+  public static Map<String, Field> getAllFields(Class<?> clazz) {
+    Map<String, Field> fields = new HashMap<>();
     while (clazz != null) {
-      fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+      Field[] declaredFields = clazz.getDeclaredFields();
+      for (Field field : declaredFields) {
+        fields.put(field.getName(), field);
+      }
       clazz = clazz.getSuperclass();
     }
-    return fields.toArray(new Field[0]);
+    return fields;
   }
 
-  private Map<String, Object> dataToMap(String className, String id, List<Object> values,
-      List<String> names, int nFields) {
-    Map<String, Object> classMap = new LinkedHashMap<>(3);
-    classMap.put("id", id);
-    classMap.put("name", className);
-
-    List<Map<String, Object>> fields = new ArrayList<>(nFields);
-    for (int i = 0; i < nFields; i++) {
-      Map<String, Object> someField = new LinkedHashMap<>(nFields);
-      someField.put("name", names.get(i));
-      someField.put("value", values.get(i));
-      fields.add(someField);
-    }
-
-    classMap.put("fields", fields);
-    return classMap;
-  }
-
-  private void writeToFile(Map<String, Object> data, Field[] fields, Object object) {
+  private void writeToFile(Map<String, Object> data, Field idField, Object object)
+      throws IllegalAccessException {
     String jsonFilePath = folderPath + File.separator + data.get("name") + ".json";
     File jsonFile = new File(jsonFilePath);
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -64,6 +52,12 @@ public class Main {
       System.exit(1);
     }
 
+    if (idField.getInt(object) == 0) {
+      //var id = idGenerator.generateId(object, jsonFilePath);
+      var id = "1";
+      data.put("id", id);
+    }
+
     try (RandomAccessFile file = new RandomAccessFile(jsonFile, "rw")) {
       if (created) {
         file.writeBytes("[\n{\n  \"currID\": 1\n}\n]");
@@ -72,19 +66,6 @@ public class Main {
         file.seek(file.length() - 2);
         file.writeBytes(",");
       }
-
-      String id = "1";
-      data.put("id", id);
-/*
-      for (Field field : fields) {
-        if (field.isAnnotationPresent(ID.class)) {
-          if (field.getInt(object) == 0) {
-            id = idGenerator.generateId(object, jsonFilePath);
-            data.put("id", id);
-          }
-        }
-      }
-*/
 
       String jsonData = gson.toJson(data);
       file.writeBytes(jsonData);
@@ -100,32 +81,65 @@ public class Main {
     }*/
   }
 
-  public void serialize(Object object) throws IllegalAccessException {
-    serialize(object, idGenerator);
+  public static boolean isCollectionOfSerializedClass(Field field) {
+    if (Collection.class.isAssignableFrom(field.getType())) {
+      ParameterizedType fieldType = (ParameterizedType) field.getGenericType();
+      Class<?> elementType = (Class<?>) fieldType.getActualTypeArguments()[0];
+      return elementType.isAnnotationPresent(SerializedClass.class);
+    }
+    return false;
   }
 
-  public void serialize(Object object, IdGenerator idGenerator) {
+  private Map<String, Object> findOrSerialize(Object obj) throws IllegalAccessException {
+    return new LinkedHashMap<>();
+  }
+
+  public void serialize(Object object) throws IllegalAccessException {
     if (object.getClass().isAnnotationPresent(SerializedClass.class)) {
-      String id = "";
-      Field[] fields = getAllFields(object.getClass());
+      Map<String, Object> classMap = new LinkedHashMap<>(4);
+      classMap.put("name", object.getClass().getName());
 
-      String className = object.getClass().getName();
-
-      int n = fields.length;
-      List<String> names = new ArrayList<>(n);
-      List<Object> values = new ArrayList<>(n);
-
-      for (Field field : fields) {
+      Map<String, Field> allFields = getAllFields(object.getClass());
+      List<Map<String, Object>> fields = new ArrayList<>();
+      List<Map<String, Object>> compositeFields = new ArrayList<>();
+      Field idField = null;
+      for (String fieldName : allFields.keySet()) {
+        Field field = allFields.get(fieldName);
         field.setAccessible(true);
-        names.add(field.getName());
+        if (field.isAnnotationPresent(ID.class)) {
+          idField = field;
+          continue;
+        }
+        Class<?> fieldType = field.getType();
+        Map<String, Object> someField = new LinkedHashMap<>(2);
         try {
-          values.add(field.get(object));
+          if (fieldType.isAnnotationPresent(SerializedClass.class)) {
+            someField.put(fieldName, findOrSerialize(field.get(object)));
+            compositeFields.add(someField);
+          } else if (isCollectionOfSerializedClass(field)) {
+            @SuppressWarnings("unchecked")
+            Collection<Object> collection = (Collection<Object>) field.get(object);
+            List<Map<String, Object>> listObjects = new ArrayList<>(collection.size());
+            for (Object element : collection) {
+              listObjects.add(findOrSerialize(element));
+            }
+            someField.put(fieldName, listObjects);
+            compositeFields.add(someField);
+          } else {
+            someField.put(fieldName, field.get(object));
+            fields.add(someField);
+          }
         } catch (IllegalAccessException e) {
           throw new RuntimeException(e);
         }
       }
-
-      writeToFile(dataToMap(className, id, values, names, n), fields, object);
+      if (!fields.isEmpty()) {
+        classMap.put("fields", fields);
+      }
+      if (!compositeFields.isEmpty()) {
+        classMap.put("compositeFields", compositeFields);
+      }
+      writeToFile(classMap, idField, object);
     } else {
       System.out.println("Class " + object.getClass().getName()
           + " isn't marked with an annotation SerializedClass");

@@ -1,0 +1,25 @@
+[
+  {
+    "currID": 1
+  },
+  {
+    "name": "persistence.project.examples.Horse",
+    "fields": [
+      {
+        "nameAnimal": "Angel"
+      },
+      {
+        "ageAnimal": 5
+      },
+      {
+        "pet": false
+      }
+    ],
+    "compositeFields": [
+      {
+        "spouse": {}
+      }
+    ],
+    "id": "1"
+  }
+]

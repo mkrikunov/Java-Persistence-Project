@@ -22,6 +22,13 @@ public class Animal {
     this.pet = pet;
   }
 
+  @Override
+  public String toString() {
+    return "nameAnimal: " + getNameAnimal() + "\n" +
+        "ageAnimal: " + getAgeAnimal() + "\n" +
+        "pet: " + pet;
+  }
+
   public String getNameAnimal() {
     return nameAnimal;
   }
