@@ -11,6 +11,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class Deserializer {
 
@@ -20,36 +21,12 @@ public class Deserializer {
     this.storagePath = storagePath;
   }
 
-  public void deserialize(Object object, String id) {
-    Class<?> clazz = object.getClass();
-    List<Map<String, Object>> objectMaps = getObjectMaps(clazz.getName());
-    Map<String, Field> allFields = getAllFields(clazz);
-      for (Map<String, Object> someObjMap : objectMaps) {
-        if (someObjMap.get("id").equals(id)) {
-          @SuppressWarnings("unchecked")
-          List<Map<String, Object>> fields = (List<Map<String, Object>>) someObjMap.get("fields");
-          Gson gson = new Gson();
-          for (Map<String, Object> fieldMap : fields) {
-            // состоит из одной пары ключ значение
-            for (String fieldName : fieldMap.keySet()) {
-              Field field1 = allFields.get(fieldName);
-              field1.setAccessible(true);
-              Type fieldType = field1.getType();
-              Object value = gson.fromJson(fieldMap.get(fieldName).toString(), fieldType);
-              try {
-                field1.set(object, value);
-              } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-              }
-            }
-          }
-          return;
-        }
-      }
-  }
-
-  private List<Map<String, Object>> getObjectMaps(String className) {
+  public static List<Map<String, Object>> getObjectMaps(String className, String storagePath) {
     String filePath = storagePath + File.separator + className + ".json";
+    File jsonFile = new File(filePath);
+    if (!jsonFile.exists()) {
+      return null;
+    }
     List<Map<String, Object>> allObjects;
     Gson gson = new Gson();
     Type listMapType = new TypeToken<List<Map<String, Object>>>() {
@@ -61,5 +38,33 @@ public class Deserializer {
     }
     //var currId = allObjects.get(0);
     return allObjects.subList(1, allObjects.size());
+  }
+
+  public void deserialize(Object object, String id) {
+    Class<?> clazz = object.getClass();
+    List<Map<String, Object>> objectMaps = getObjectMaps(clazz.getName(), storagePath);
+    Map<String, Field> allFields = getAllFields(clazz);
+    for (Map<String, Object> someObjMap : Objects.requireNonNull(objectMaps)) {
+      if (someObjMap.get("id").equals(id)) {
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> fields = (List<Map<String, Object>>) someObjMap.get("fields");
+        Gson gson = new Gson();
+        for (Map<String, Object> fieldMap : fields) {
+          // состоит из одной пары ключ значение
+          for (String fieldName : fieldMap.keySet()) {
+            Field field1 = allFields.get(fieldName);
+            field1.setAccessible(true);
+            Type fieldType = field1.getType();
+            Object value = gson.fromJson(fieldMap.get(fieldName).toString(), fieldType);
+            try {
+              field1.set(object, value);
+            } catch (IllegalAccessException e) {
+              throw new RuntimeException(e);
+            }
+          }
+        }
+        return;
+      }
+    }
   }
 }

@@ -1,6 +1,56 @@
 [
+{
+  "currID": 1
+},
+{
+  "name": "persistence.project.examples.Horse",
+  "fields": [
+    {
+      "nameAnimal": "Angel\u0027s spouse"
+    },
+    {
+      "ageAnimal": 0
+    },
+    {
+      "pet": false
+    }
+  ],
+  "id": "1"}
+,
   {
-    "currID": 1
+    "name": "persistence.project.examples.Horse",
+    "fields": [
+      {
+        "nameAnimal": "Angel"
+      },
+      {
+        "ageAnimal": 5
+      },
+      {
+        "pet": false
+      }
+    ],
+    "compositeFields": [
+      {
+        "spouse": 0
+      }
+    ],
+    "id": "1"
+  },
+  {
+    "name": "persistence.project.examples.Horse",
+    "fields": [
+      {
+        "nameAnimal": "Angel\u0027s spouse"
+      },
+      {
+        "ageAnimal": 0
+      },
+      {
+        "pet": false
+      }
+    ],
+    "id": "1"
   },
   {
     "name": "persistence.project.examples.Horse",
@@ -17,9 +67,22 @@
     ],
     "compositeFields": [
       {
-        "spouse": {}
+        "spouse": 0
       }
     ],
     "id": "1"
-  }
-]
+  },{
+  "name": "persistence.project.examples.Horse",
+  "fields": [
+    {
+      "nameAnimal": "Angel\u0027s spouse"
+    },
+    {
+      "ageAnimal": 0
+    },
+    {
+      "pet": false
+    }
+  ],
+  "id": "1"
+}]
