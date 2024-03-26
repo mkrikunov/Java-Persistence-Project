@@ -50,4 +50,7 @@ public class Horse {
     return nameAnimal;
   }
 
+  public int getId() {
+    return id;
+  }
 }

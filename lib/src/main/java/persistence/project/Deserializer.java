@@ -54,16 +54,17 @@ public class Deserializer {
    * Десериализует некоторый объект с заданным id.
    *
    * @param object объект, который нужно десериализовать.
-   * @param id     его идентификатор в списке сериализованных объектов.
+   * @param targetId     его идентификатор в списке сериализованных объектов.
    */
-  public void deserialize(Object object, int id) {
+  public void deserialize(Object object, int targetId) {
     Class<?> clazz = object.getClass();
     Map<String, Field> allFields = getAllFields(clazz);
     List<Map<String, Object>> objectMaps = getObjectsMaps(clazz.getName(), storagePath);
     Gson gson = new Gson();
 
     for (Map<String, Object> someObjMap : Objects.requireNonNull(objectMaps)) {
-      if (gson.fromJson(someObjMap.get("id").toString(), Integer.class) != id) {
+      int id = gson.fromJson(someObjMap.get("id").toString(), Integer.class);
+      if (id != targetId) {
         continue;
       }
 
@@ -157,6 +158,14 @@ public class Deserializer {
             }
           }
         }
+      }
+
+      Field field = allFields.get("id");
+      field.setAccessible(true);
+      try {
+        field.set(object, id);
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException(e);
       }
       return;
     }

@@ -131,5 +131,6 @@ class LibraryTest {
     Deserializer deserializer = new Deserializer("src/main/resources/storage");
     deserializer.deserialize(horse, 2);
     System.out.println(horse);
+    assert horse.getId() == 2;
   }
 }
