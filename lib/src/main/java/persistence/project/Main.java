@@ -144,14 +144,17 @@ public class Main {
           compositeFields.add(someField);
 
         } else if (isCollectionOfSerializedClass(field)) {
-            /*@SuppressWarnings("unchecked")
+            @SuppressWarnings("unchecked")
             Collection<Object> collection = (Collection<Object>) fieldValue;
             List<Map<String, Object>> listObjects = new ArrayList<>(collection.size());
             for (Object element : collection) {
-              listObjects.add(findOrSerialize(element));
+              Map<String, Object> compositeObjectMap = new LinkedHashMap<>(2);
+              compositeObjectMap.put("name", element.getClass().getName());
+              compositeObjectMap.put("id", findOrSerialize(element));
+              listObjects.add(compositeObjectMap);
             }
             someField.put(fieldName, listObjects);
-            compositeFields.add(someField);*/
+            compositeFields.add(someField);
         } else {
           someField.put(fieldName, fieldValue);
           fields.add(someField);
