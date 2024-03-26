@@ -32,7 +32,7 @@ class LibraryTest {
     try {
       main.serialize(vasyaCat);
       main.serialize(murkaCat);
-    } catch (IllegalAccessException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -53,7 +53,7 @@ class LibraryTest {
     Animal someAnimal = new Animal("Murka", 6, true);
     try {
       main.serialize(someAnimal);
-    } catch (IllegalAccessException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -66,7 +66,7 @@ class LibraryTest {
     Dog bobikDog = new Dog("Bobik", 1, false);
     try {
       main.serialize(bobikDog);
-    } catch (IllegalAccessException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -78,7 +78,7 @@ class LibraryTest {
     Dog muhtarDog = new Dog("Muhtar", 10, true);
     try {
       main.serialize(muhtarDog);
-    } catch (IllegalAccessException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -111,7 +111,7 @@ class LibraryTest {
     horse.setSpouse(horseSpouse);
     try {
       main.serialize(horse);
-    } catch (IllegalAccessException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }

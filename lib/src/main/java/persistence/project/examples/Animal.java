@@ -11,7 +11,7 @@ public class Animal {
   public boolean pet;
 
   @ID
-  private int id;
+  private int id = 0;
 
   public Animal() {
   }

@@ -1,7 +1,5 @@
 package persistence.project;
 
-import static persistence.project.Deserializer.getObjectMaps;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.File;
@@ -15,6 +13,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import persistence.project.annotations.ID;
 import persistence.project.annotations.SerializedClass;
 import persistence.project.id.DefaultIdGenerator;
@@ -41,9 +40,9 @@ public class Main {
     return fields;
   }
 
-  private void writeToFile(Map<String, Object> data, Field idField, Object object)
+  private Integer writeToFile(Map<String, Object> data, Field idField, Object object)
       throws IllegalAccessException {
-    String jsonFilePath = storagePath + File.separator + data.get("name") + ".json";
+    String jsonFilePath = storagePath + File.separator + object.getClass().getName() + ".json";
     File jsonFile = new File(jsonFilePath);
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
     boolean created = false;
@@ -54,9 +53,10 @@ public class Main {
       System.exit(1);
     }
 
+    int id = 0;
     if (idField.getInt(object) == 0) {
       //var id = idGenerator.generateId(object, jsonFilePath);
-      var id = "1";
+      id = 1;
       data.put("id", id);
     }
 
@@ -81,6 +81,7 @@ public class Main {
     }/* catch (IllegalAccessException e) {
       throw new RuntimeException(e);
     }*/
+    return id;
   }
 
   public static boolean isCollectionOfSerializedClass(Field field) {
@@ -93,85 +94,82 @@ public class Main {
   }
 
   private Integer findOrSerialize(Object object) throws Exception {
+    // Получаем Id объекта
     var allFields = getAllFields(object.getClass());
     Field fieldId = allFields.get("id");
     fieldId.setAccessible(true);
-    int objId = Integer.parseInt(fieldId.get(object).toString());
-    if (objId == 0) {
-      serialize(object);
-      allFields = getAllFields(object.getClass());
-      var idField = allFields.get("id");
-      idField.setAccessible(true);
-      return Integer.valueOf(idField.get(object).toString());
+    int objId = fieldId.getInt(object);
+    // Если объект уже сериализован -> возвращаем Id
+    if (objId != 0) {
+      return objId;
     }
-    List<Map<String, Object>> objectMaps = getObjectMaps(object.getClass().getName(),
-        storagePath);
-    if (objectMaps != null) {
-      for (Map<String, Object> objectMap : objectMaps) {
-        if (objectMap.get("id").equals(objId)) {
-          return objId;
-        }
-      }
-    }
-    throw new Exception("Something went wrong");
+    // иначе сериализуем
+    return serialize(object);
   }
 
-  public void serialize(Object object) throws IllegalAccessException {
+
+  public Integer serialize(Object object) throws Exception {
     if (object.getClass().isAnnotationPresent(SerializedClass.class)) {
-      Map<String, Object> classMap = new LinkedHashMap<>(4);
-      classMap.put("name", object.getClass().getName());
+      Map<String, Object> classMap = new LinkedHashMap<>(3);
 
       Map<String, Field> allFields = getAllFields(object.getClass());
       List<Map<String, Object>> fields = new ArrayList<>();
       List<Map<String, Object>> compositeFields = new ArrayList<>();
       Field idField = null;
+
       for (String fieldName : allFields.keySet()) {
         Field field = allFields.get(fieldName);
         field.setAccessible(true);
+
+        // Если поле - ID
         if (field.isAnnotationPresent(ID.class)) {
           idField = field;
+          // Если объект уже был сериализован
+          if (idField.getInt(object) != 0) {
+            throw new Exception("This object has already been serialized!");
+          }
           continue;
         }
-        Class<?> fieldType = field.getType();
-        Map<String, Object> someField = new LinkedHashMap<>(2);
-        try {
-          if (field.get(object) == null) {
-            continue;
-          }
-          if (fieldType.isAnnotationPresent(SerializedClass.class)) {
-            try {
-              someField.put(fieldName, findOrSerialize(field.get(object)));
-            } catch (Exception e) {
-              throw new RuntimeException(e);
-            }
-            compositeFields.add(someField);
-          } else if (isCollectionOfSerializedClass(field)) {
+
+        var fieldValue = field.get(object);
+        // Если поле без значения
+        if (fieldValue == null) {
+          continue;
+        }
+
+        Map<String, Object> someField = new LinkedHashMap<>(1);
+        if (field.getType().isAnnotationPresent(SerializedClass.class)) {
+          Map<String, Object> compositeObjectMap = new LinkedHashMap<>(2);
+          compositeObjectMap.put("name", fieldValue.getClass().getName());
+          compositeObjectMap.put("id", findOrSerialize(fieldValue));
+          someField.put(fieldName, compositeObjectMap);
+          compositeFields.add(someField);
+
+        } else if (isCollectionOfSerializedClass(field)) {
             /*@SuppressWarnings("unchecked")
-            Collection<Object> collection = (Collection<Object>) field.get(object);
+            Collection<Object> collection = (Collection<Object>) fieldValue;
             List<Map<String, Object>> listObjects = new ArrayList<>(collection.size());
             for (Object element : collection) {
               listObjects.add(findOrSerialize(element));
             }
             someField.put(fieldName, listObjects);
             compositeFields.add(someField);*/
-          } else {
-            someField.put(fieldName, field.get(object));
-            fields.add(someField);
-          }
-        } catch (IllegalAccessException e) {
-          throw new RuntimeException(e);
+        } else {
+          someField.put(fieldName, fieldValue);
+          fields.add(someField);
         }
       }
+      // Добавляем наборы полей в мапу объекта
       if (!fields.isEmpty()) {
         classMap.put("fields", fields);
       }
       if (!compositeFields.isEmpty()) {
         classMap.put("compositeFields", compositeFields);
       }
-      writeToFile(classMap, idField, object);
-    } else {
-      System.out.println("Class " + object.getClass().getName()
-          + " isn't marked with an annotation SerializedClass");
+      return writeToFile(classMap, Objects.requireNonNull(idField), object);
     }
+    System.out.println("Class " + object.getClass().getName()
+        + " isn't marked with an annotation SerializedClass");
+    return 0;
   }
 }
