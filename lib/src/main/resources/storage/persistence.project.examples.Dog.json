@@ -1,50 +1,33 @@
 [
   {
-    "id": "3",
-    "name": "persistence.project.examples.Dog",
-    "fields": [
-      {
-        "name": "nameAnimal",
-        "type": "java.lang.String",
-        "value": "Bobik",
-        "access": "private final"
-      },
-      {
-        "name": "ageAnimal",
-        "type": "int",
-        "value": 1,
-        "access": "private"
-      },
-      {
-        "name": "pet",
-        "type": "boolean",
-        "value": false,
-        "access": "public"
-      }
-    ]
+    "currID": 3
   },
   {
-    "id": "4",
-    "name": "persistence.project.examples.Dog",
     "fields": [
       {
-        "name": "nameAnimal",
-        "type": "java.lang.String",
-        "value": "Muhtar",
-        "access": "private final"
+        "nameAnimal": "Muhtar"
       },
       {
-        "name": "ageAnimal",
-        "type": "int",
-        "value": 10,
-        "access": "private"
+        "ageAnimal": 10
       },
       {
-        "name": "pet",
-        "type": "boolean",
-        "value": true,
-        "access": "public"
+        "pet": true
       }
-    ]
+    ],
+    "id": 1
   }
-]
+,
+{
+  "fields": [
+    {
+      "nameAnimal": "Bobik"
+    },
+    {
+      "ageAnimal": 1
+    },
+    {
+      "pet": false
+    }
+  ],
+  "id": 2
+}]

@@ -32,8 +32,16 @@ public class Cat {
     return "name: " + getNameAnimal() + "\n" +
         "age: " + getAgeAnimal() + "\n" +
         "pet: " + pet + "\n" +
-        "kittens: " + getKittens() + "\n" +
+        "kittens: " + getKittensToString() + "\n" +
         "pip: " + pip;
+  }
+
+  public String getKittensToString() {
+    StringBuilder string = new StringBuilder();
+    for (Cat cat : kittens) {
+      string.append(cat.getNameAnimal()).append(" ");
+    }
+    return String.valueOf(string);
   }
 
   public List<Cat> getKittens() {

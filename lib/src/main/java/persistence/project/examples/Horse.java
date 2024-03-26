@@ -17,6 +17,12 @@ public class Horse {
   public Horse() {
   }
 
+  public Horse(String nameAnimal, int ageAnimal, boolean pet) {
+    this.ageAnimal = ageAnimal;
+    this.nameAnimal = nameAnimal;
+    this.pet = pet;
+  }
+
   public void setSpouse(Horse spouse) {
     this.spouse = spouse;
   }
@@ -31,7 +37,7 @@ public class Horse {
         "age: " + getAgeAnimal() + "\n" +
         "pet: " + pet + "\n";
     if (getSpouse() != null) {
-      str += "spouse: " + spouse.getNameAnimal();
+      str += "spouse: " + spouse.getNameAnimal() + ", " + spouse.getAgeAnimal();
     }
     return str;
   }
@@ -40,15 +46,8 @@ public class Horse {
     return ageAnimal;
   }
 
-  public void setAgeAnimal(int ageAnimal) {
-    this.ageAnimal = ageAnimal;
-  }
-
   public String getNameAnimal() {
     return nameAnimal;
   }
 
-  public void setNameAnimal(String nameAnimal) {
-    this.nameAnimal = nameAnimal;
-  }
 }
