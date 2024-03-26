@@ -92,11 +92,11 @@ public class DefaultIdGenerator implements IdGenerator {
   }
 
   @Override
-  public String generateId(Object object, String jsonFilePath) {
+  public int generateId(Object object, String jsonFilePath) {
     this.jsonFilePath = jsonFilePath;
 
-    String id = getCurrId();
-    setCurrId(Integer.parseInt(id) + 1);
+    int id = Integer.parseInt(getCurrId());
+    setCurrId(id + 1);
 
     try {
       Class<?> objectClass = object.getClass();

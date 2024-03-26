@@ -52,14 +52,7 @@ public class Main {
       System.err.println(e.getMessage());
       System.exit(1);
     }
-
     int id = 0;
-    if (idField.getInt(object) == 0) {
-      //var id = idGenerator.generateId(object, jsonFilePath);
-      id = 1;
-      data.put("id", id);
-    }
-
     try (RandomAccessFile file = new RandomAccessFile(jsonFile, "rw")) {
       if (created) {
         file.writeBytes("[\n{\n  \"currID\": 1\n}\n]");
@@ -67,6 +60,12 @@ public class Main {
       } else {
         file.seek(file.length() - 2);
         file.writeBytes(",");
+      }
+
+      if (idField.getInt(object) == 0) {
+        id = idGenerator.generateId(object, jsonFilePath);
+        //var id = "1";
+        data.put("id", id);
       }
 
       String jsonData = gson.toJson(data);

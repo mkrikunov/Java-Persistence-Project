@@ -1,5 +1,5 @@
 package persistence.project.id;
 
 public interface IdGenerator {
-  public String generateId(Object object, String jsonFilePath);
+  public int generateId(Object object, String jsonFilePath);
 }
