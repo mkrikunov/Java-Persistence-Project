@@ -1,1 +1,15 @@
-[{"currID":2}]
+[{"currID":2},
+{
+  "fields": [
+    {
+      "nameAnimal": "Murka"
+    },
+    {
+      "ageAnimal": 6
+    },
+    {
+      "pet": true
+    }
+  ],
+  "id": 1
+}]

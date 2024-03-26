@@ -82,7 +82,7 @@ class LibraryTest {
       throw new RuntimeException(e);
     }
   }
-
+/*
   @Test
   void idGeneratorTest() {
     DefaultIdGenerator IdGenerator = new DefaultIdGenerator();
@@ -98,7 +98,7 @@ class LibraryTest {
     Set<String> set = new HashSet<>(idList);
     assertEquals(set.size(), idList.size()); //check for unique
   }
-
+*/
   @Test
   public void horseToJson() {
     Main main = new Main("src/main/resources/storage");

@@ -56,17 +56,16 @@ public class Main {
     try (RandomAccessFile file = new RandomAccessFile(jsonFile, "rw")) {
       if (created) {
         file.writeBytes("[\n{\n  \"currID\": 1\n}\n]");
-        file.seek(file.length() - 1);
-      } else {
-        file.seek(file.length() - 2);
-        file.writeBytes(",");
       }
 
       if (idField.getInt(object) == 0) {
         id = idGenerator.generateId(object, jsonFilePath);
-        //var id = "1";
+
         data.put("id", id);
       }
+
+      file.seek(file.length() - 1);
+      file.writeBytes(",\n");
 
       String jsonData = gson.toJson(data);
       file.writeBytes(jsonData);
