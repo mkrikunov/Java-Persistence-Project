@@ -1,20 +1,29 @@
 package persistence.project.examples;
 
 import java.util.List;
+import persistence.project.annotations.ID;
 import persistence.project.annotations.SerializedClass;
 
 @SerializedClass
-public class Cat extends Animal {
+public class Cat {
+
+  private String nameAnimal;
+  private int ageAnimal;
+  public boolean pet;
+
+  @ID
+  private int id = 0;
 
   private List<Cat> kittens;
   public String pip = "pip";
 
   public Cat() {
-    super();
   }
 
   public Cat(String name, int age, boolean pet) {
-    super(name, age, pet);
+    setNameAnimal(name);
+    setAgeAnimal(age);
+    this.pet = pet;
     setKittens(null);
   }
 
@@ -33,5 +42,21 @@ public class Cat extends Animal {
 
   public void setKittens(List<Cat> kittens) {
     this.kittens = kittens;
+  }
+
+  public String getNameAnimal() {
+    return nameAnimal;
+  }
+
+  public void setNameAnimal(String nameAnimal) {
+    this.nameAnimal = nameAnimal;
+  }
+
+  public int getAgeAnimal() {
+    return ageAnimal;
+  }
+
+  public void setAgeAnimal(int ageAnimal) {
+    this.ageAnimal = ageAnimal;
   }
 }
