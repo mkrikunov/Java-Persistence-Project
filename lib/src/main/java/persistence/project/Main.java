@@ -17,14 +17,20 @@ import java.util.Objects;
 import persistence.project.annotations.ID;
 import persistence.project.annotations.SerializedClass;
 import persistence.project.id.DefaultIdGenerator;
+import persistence.project.id.IdGenerator;
 
 public class Main {
 
   private final String storagePath;
-  private final DefaultIdGenerator idGenerator;
+  private final IdGenerator idGenerator;
 
   public Main(String storagePath) {
     this.idGenerator = new DefaultIdGenerator();
+    this.storagePath = storagePath;
+  }
+
+  public Main(String storagePath, IdGenerator idGenerator) {
+    this.idGenerator = idGenerator;
     this.storagePath = storagePath;
   }
 
@@ -76,9 +82,7 @@ public class Main {
         System.err.println("Failed to delete the created file");
       }
       throw new RuntimeException(e);
-    }/* catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }*/
+    }
     return id;
   }
 

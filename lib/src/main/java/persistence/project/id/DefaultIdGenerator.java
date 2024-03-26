@@ -31,34 +31,6 @@ public class DefaultIdGenerator implements IdGenerator {
     return id;
   }
 
-  /*
-  private void setCurrId(int id) {
-
-    try (BufferedReader bufferedReader = new BufferedReader(new FileReader(jsonFilePath))) {
-      JsonObject jsonObject = gson.fromJson(bufferedReader, JsonObject.class);
-      JsonObject newJsonObject = new JsonObject();
-      newJsonObject.addProperty("currID", id);
-
-      if (jsonObject != null) {
-        for (String key : jsonObject.keySet()) {
-          if (!key.equals("currID")) {
-            newJsonObject.add(key, jsonObject.get(key));
-          }
-        }
-      }
-
-      Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
-
-      try (FileWriter fileWriter = new FileWriter(jsonFilePath)) {
-        gsonPretty.toJson(newJsonObject, fileWriter);
-      }
-    } catch (IOException e) {
-      System.err.println(e.getMessage());
-      System.exit(1);
-    }
-  }
-*/
-
   private void setCurrId(int id) {
     try {
       Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -81,6 +53,7 @@ public class DefaultIdGenerator implements IdGenerator {
       }
 
       JsonWriter writer = new JsonWriter(new FileWriter(jsonFilePath));
+      writer.setIndent("  ");
       gson.toJson(rootElement, writer);
       writer.close();
     } catch (FileNotFoundException e) {
