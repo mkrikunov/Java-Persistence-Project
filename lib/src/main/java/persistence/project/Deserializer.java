@@ -1,6 +1,8 @@
 package persistence.project;
 
-import static persistence.project.Main.getAllFields;
+import static persistence.project.Utils.createCollection;
+import static persistence.project.Utils.getAllFields;
+import static persistence.project.Utils.isCollectionOfSerializedClass;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -10,11 +12,11 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import persistence.project.annotations.SerializedClass;
 
 public class Deserializer {
 
@@ -53,21 +55,35 @@ public class Deserializer {
   /**
    * Десериализует некоторый объект с заданным id.
    *
-   * @param object объект, который нужно десериализовать.
-   * @param targetId     его идентификатор в списке сериализованных объектов.
+   * @param clazz    класс, экземпляр которого нужно десериализовать.
+   * @param targetId его идентификатор в списке сериализованных объектов.
    */
-  public void deserialize(Object object, int targetId) {
-    Class<?> clazz = object.getClass();
+  public Object deserialize(Class<?> clazz, int targetId) {
+    // Достаем все объекты из файла и все поля класса
     Map<String, Field> allFields = getAllFields(clazz);
     List<Map<String, Object>> objectMaps = getObjectsMaps(clazz.getName(), storagePath);
-    Gson gson = new Gson();
 
+    // Создаем пустой целевой объект
+    Object targetObject;
+    try {
+      targetObject = clazz.getDeclaredConstructor().newInstance();
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+             NoSuchMethodException e) {
+      System.err.println("Error during creation a target object");
+      throw new RuntimeException(e);
+    }
+
+    // итерируемся по мапам объектов
+    Gson gson = new Gson();
     for (Map<String, Object> someObjMap : Objects.requireNonNull(objectMaps)) {
+      // Проверяем, нужный ли это id
       int id = gson.fromJson(someObjMap.get("id").toString(), Integer.class);
       if (id != targetId) {
         continue;
       }
 
+      // Если это объект, который нам нужен
+      // Сначала проходимся по всем обычным полям
       if (someObjMap.containsKey("fields")) {
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> fields = (List<Map<String, Object>>) someObjMap.get("fields");
@@ -79,7 +95,7 @@ public class Deserializer {
             Type fieldType = field.getType();
             Object value = gson.fromJson(fieldMap.get(fieldName).toString(), fieldType);
             try {
-              field.set(object, value);
+              field.set(targetObject, value);
             } catch (IllegalAccessException e) {
               throw new RuntimeException(e);
             }
@@ -87,6 +103,7 @@ public class Deserializer {
         }
       }
 
+      // Проходимся по композитным полям
       if (someObjMap.containsKey("compositeFields")) {
         // Достаем список композитных полей
         @SuppressWarnings("unchecked")
@@ -101,12 +118,14 @@ public class Deserializer {
             Class<?> fieldType = field.getType();
 
             // Если это коллекция композитных объектов
-            if (Collection.class.isAssignableFrom(fieldType)) {
+            if (isCollectionOfSerializedClass(field)) {
+              // Достаем мапу композитных объектов
               Type listMapType = new TypeToken<List<Map<String, Object>>>() {
               }.getType();
               List<Map<String, Object>> listCompositeObject = gson.fromJson(
                   compositeField.get(fieldName).toString(), listMapType);
-              Collection<Object> collection = new ArrayList<>();
+              // Создаем нужную коллекцию
+              Collection<Object> collection = createCollection(fieldType);
               for (Map<String, Object> compositeObjectMap : listCompositeObject) {
                 // Получаем класс объекта и id, т.е. в каком файле и под каким id его искать
                 String nameClass = compositeObjectMap.get("name").toString();
@@ -114,44 +133,30 @@ public class Deserializer {
                     Integer.class);
                 Object compositeObject;
                 try {
-                  compositeObject = Class.forName(nameClass).getDeclaredConstructor().newInstance();
-                } catch (InstantiationException | IllegalAccessException |
-                         InvocationTargetException | NoSuchMethodException |
-                         ClassNotFoundException e) {
-                  System.err.println("Error when creating a new object");
+                  compositeObject = deserialize(Class.forName(nameClass), objectId);
+                } catch (ClassNotFoundException e) {
+                  System.err.println("Error when deserializing");
                   throw new RuntimeException(e);
                 }
-                deserialize(compositeObject, objectId);
                 collection.add(compositeObject);
               }
               try {
-                field.set(object, collection);
+                field.set(targetObject, collection);
               } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
               }
 
               // Если это просто композитный объект
-            } else {
+            } else if (fieldType.isAnnotationPresent(SerializedClass.class)) {
               Type mapType = new TypeToken<Map<String, Object>>() {
               }.getType();
               Map<String, Object> compositeObjectMap = gson.fromJson(
                   compositeField.get(fieldName).toString(), mapType);
-              // Получаем класс объекта и id, т.е. в каком файле и под каким id его искать
-              String nameClass = compositeObjectMap.get("name").toString();
               int objectId = gson.fromJson(compositeObjectMap.get("id").toString(),
                   Integer.class);
-              Object compositeObject;
+              Object compositeObject = deserialize(fieldType, objectId);
               try {
-                compositeObject = Class.forName(nameClass).getDeclaredConstructor().newInstance();
-              } catch (InstantiationException | IllegalAccessException |
-                       InvocationTargetException | NoSuchMethodException |
-                       ClassNotFoundException e) {
-                System.err.println("Error when creating a new object");
-                throw new RuntimeException(e);
-              }
-              deserialize(compositeObject, objectId);
-              try {
-                field.set(object, compositeObject);
+                field.set(targetObject, compositeObject);
               } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
               }
@@ -163,11 +168,12 @@ public class Deserializer {
       Field field = allFields.get("id");
       field.setAccessible(true);
       try {
-        field.set(object, id);
+        field.set(targetObject, id);
       } catch (IllegalAccessException e) {
         throw new RuntimeException(e);
       }
-      return;
+      return targetObject;
     }
+    return null;
   }
 }

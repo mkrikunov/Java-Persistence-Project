@@ -1,15 +1,16 @@
 package persistence.project;
 
+import static persistence.project.Utils.getAllFields;
+import static persistence.project.Utils.isCollectionOfSerializedClass;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,31 +20,19 @@ import persistence.project.annotations.SerializedClass;
 import persistence.project.id.DefaultIdGenerator;
 import persistence.project.id.IdGenerator;
 
-public class Main {
+public class Serializer {
 
   private final String storagePath;
   private final IdGenerator idGenerator;
 
-  public Main(String storagePath) {
+  public Serializer(String storagePath) {
     this.idGenerator = new DefaultIdGenerator();
     this.storagePath = storagePath;
   }
 
-  public Main(String storagePath, IdGenerator idGenerator) {
+  public Serializer(String storagePath, IdGenerator idGenerator) {
     this.idGenerator = idGenerator;
     this.storagePath = storagePath;
-  }
-
-  public static Map<String, Field> getAllFields(Class<?> clazz) {
-    Map<String, Field> fields = new HashMap<>();
-    while (clazz != null) {
-      Field[] declaredFields = clazz.getDeclaredFields();
-      for (Field field : declaredFields) {
-        fields.put(field.getName(), field);
-      }
-      clazz = clazz.getSuperclass();
-    }
-    return fields;
   }
 
   private Integer writeToFile(Map<String, Object> data, Field idField, Object object)
@@ -84,15 +73,6 @@ public class Main {
       throw new RuntimeException(e);
     }
     return id;
-  }
-
-  public static boolean isCollectionOfSerializedClass(Field field) {
-    if (Collection.class.isAssignableFrom(field.getType())) {
-      ParameterizedType fieldType = (ParameterizedType) field.getGenericType();
-      Class<?> elementType = (Class<?>) fieldType.getActualTypeArguments()[0];
-      return elementType.isAnnotationPresent(SerializedClass.class);
-    }
-    return false;
   }
 
   private Integer findOrSerialize(Object object) throws Exception {
