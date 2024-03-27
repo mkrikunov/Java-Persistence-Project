@@ -10,14 +10,49 @@ import persistence.project.examples.Horse;
 class LibraryTest {
 
   @Test
+  void catToJsonFileAndBack() {
+    Main main = new Main("src/main/resources/storage");
+
+    Cat vasyaCat = new Cat("Bayun", 5, true);
+    Cat sevaCat = new Cat("Seva", 1, true);
+
+    Cat murkaCat = new Cat("Murka", 2, true);
+    List<Cat> cats = new ArrayList<>();
+    cats.add(vasyaCat);
+    cats.add(sevaCat);
+    murkaCat.setKittens(cats);
+
+    try {
+      main.serialize(vasyaCat);
+      main.serialize(murkaCat);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+    Cat cat = new Cat();
+    Deserializer deserializer = new Deserializer("src/main/resources/storage");
+    deserializer.deserialize(cat, 3);
+    assert cat.getNameAnimal().equals(murkaCat.getNameAnimal());
+    assert cat.getAgeAnimal() == murkaCat.getAgeAnimal();
+    assert cat.pet == murkaCat.pet;
+    var nKittens = cat.getKittens().size();
+    assert nKittens == murkaCat.getKittens().size();
+    List<Cat> kittensCat = cat.getKittens();
+    List<Cat> kittensMurka = murkaCat.getKittens();
+    for (int i = 0; i < nKittens; i++) {
+      assert kittensCat.get(i).getNameAnimal().equals(kittensMurka.get(i).getNameAnimal());
+    }
+  }
+
+  @Test
   void catToJsonFile() {
     Main main = new Main("src/main/resources/storage");
 
     Cat vasyaCat = new Cat("Bayun", 5, true);
     Cat sevaCat = new Cat("Seva", 1, true);
+
     Cat murkaCat = new Cat("Murka", 2, true);
-    var nCats = 1;
-    List<Cat> cats = new ArrayList<>(nCats);
+    List<Cat> cats = new ArrayList<>();
     cats.add(vasyaCat);
     cats.add(sevaCat);
     murkaCat.setKittens(cats);
@@ -31,15 +66,15 @@ class LibraryTest {
   }
 
   @Test
-  void deserializer() {
+  void deserializeCatMurka() {
     Cat cat = new Cat();
     Deserializer deserializer = new Deserializer("src/main/resources/storage");
-    deserializer.deserialize(cat, "2");
+    deserializer.deserialize(cat, 3);
     System.out.println(cat);
   }
 
   @Test
-  void dogToJsonFile() {
+  void dogBobikToJsonFile() {
     Main main;
     main = new Main("src/main/resources/storage");
 
@@ -52,7 +87,7 @@ class LibraryTest {
   }
 
   @Test
-  void dogToJsonFile2() {
+  void dogMuhtarToJsonFile() {
     Main main = new Main("src/main/resources/storage");
 
     Dog muhtarDog = new Dog("Muhtar", 10, true);
@@ -63,47 +98,39 @@ class LibraryTest {
     }
   }
 
-  /*
-    @Test
-    void idGeneratorTest() {
-      DefaultIdGenerator IdGenerator = new DefaultIdGenerator();
-      ArrayList<String> idList = new ArrayList<>();
-      for (int i = 0; i < 10; i++) {
-        Animal animal = new Animal("Murka", i + 1, true);
-        String id = IdGenerator.generateId(animal, ""); //тут указать файл для теста вместо ""
-        idList.add(id);
-        assertNotNull(id);
-        assertFalse(id.isEmpty());
-      }
-
-      Set<String> set = new HashSet<>(idList);
-      assertEquals(set.size(), idList.size()); //check for unique
-    }
-  */
   @Test
-  public void horseToJson() {
+  public void horseJuliusToJson() {
     Main main = new Main("src/main/resources/storage");
 
-    Horse horse = new Horse();
-    horse.setNameAnimal("Angel");
-    horse.setAgeAnimal(5);
+    Horse julius = new Horse("Julius", 5, true);
 
-    Horse horseSpouse = new Horse();
-    horseSpouse.setNameAnimal("Angel's spouse");
+    Horse daphne = new Horse("Daphne", 4, false);
 
-    horse.setSpouse(horseSpouse);
+    julius.setSpouse(daphne);
     try {
-      main.serialize(horse);
+      main.serialize(julius);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
   @Test
-  void deserializeHorse() {
+  void deserializeHorseDaphne() {
     Horse horse = new Horse();
     Deserializer deserializer = new Deserializer("src/main/resources/storage");
-    deserializer.deserialize(horse, "1");
+    deserializer.deserialize(horse, 1);
     System.out.println(horse);
+    assert horse.getNameAnimal().equals("Daphne");
+    assert horse.getAgeAnimal() == 4;
+    assert !horse.pet;
+  }
+
+  @Test
+  void deserializeHorseJulius() {
+    Horse horse = new Horse();
+    Deserializer deserializer = new Deserializer("src/main/resources/storage");
+    deserializer.deserialize(horse, 2);
+    System.out.println(horse);
+    assert horse.getId() == 2;
   }
 }
