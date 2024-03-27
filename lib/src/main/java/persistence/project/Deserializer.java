@@ -36,7 +36,6 @@ public class Deserializer {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    //var currId = allObjects.get(0);
     return allObjects.subList(1, allObjects.size());
   }
 
