@@ -32,16 +32,19 @@ public class Cat {
     return "name: " + getNameAnimal() + "\n" +
         "age: " + getAgeAnimal() + "\n" +
         "pet: " + pet + "\n" +
-        "kittens: " + getKittensToString() + "\n" +
+        getKittensToString() +
         "pip: " + pip;
   }
 
   public String getKittensToString() {
-    StringBuilder string = new StringBuilder();
-    for (Cat cat : kittens) {
+    if (kittens == null) {
+      return "";
+    }
+    StringBuilder string = new StringBuilder("kittens: ");
+    for (Cat cat : getKittens()) {
       string.append(cat.getNameAnimal()).append(" ");
     }
-    return String.valueOf(string);
+    return string + "\n";
   }
 
   public List<Cat> getKittens() {

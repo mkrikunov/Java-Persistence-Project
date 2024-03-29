@@ -6,9 +6,6 @@ import static persistence.project.Utils.isCollectionOfSerializedClass;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
@@ -20,36 +17,10 @@ import persistence.project.annotations.SerializedClass;
 
 public class Deserializer {
 
-  private final String storagePath;
+  private final StorageManager storageManager;
 
-  public Deserializer(String storagePath) {
-    this.storagePath = storagePath;
-  }
-
-  /**
-   * Считывает из .json файла данные в список мап.
-   *
-   * @param className   экземпляры какого класса сериализованы в .json файле.
-   * @param storagePath путь до хранилища данных.
-   * @return список мап, в котором в каждой мапе лежит некоторый сериализованный объект данного
-   * класса. Возвращает null, если такого файла не существует.
-   */
-  private static List<Map<String, Object>> getObjectsMaps(String className, String storagePath) {
-    String filePath = storagePath + File.separator + className + ".json";
-    File jsonFile = new File(filePath);
-    if (!jsonFile.exists()) {
-      return null;
-    }
-    List<Map<String, Object>> allObjects;
-    Gson gson = new Gson();
-    Type listMapType = new TypeToken<List<Map<String, Object>>>() {
-    }.getType();
-    try (FileReader reader = new FileReader(filePath)) {
-      allObjects = gson.fromJson(reader, listMapType);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return allObjects.subList(1, allObjects.size()); // в 0 лежит currId
+  public Deserializer(StorageManager storageManager) {
+    this.storageManager = storageManager;
   }
 
   /**
@@ -61,7 +32,7 @@ public class Deserializer {
   public Object deserialize(Class<?> clazz, int targetId) {
     // Достаем все объекты из файла и все поля класса
     Map<String, Field> allFields = getAllFields(clazz);
-    List<Map<String, Object>> objectMaps = getObjectsMaps(clazz.getName(), storagePath);
+    List<Map<String, Object>> objectMaps = storageManager.getObjectsMaps(clazz.getName());
 
     // Создаем пустой целевой объект
     Object targetObject;
