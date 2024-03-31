@@ -5,22 +5,42 @@ import static persistence.project.Utils.getAllFields;
 import static persistence.project.Utils.isCollectionOfSerializedClass;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import persistence.project.annotations.SerializedClass;
 
 public class Deserializer {
 
   private final StorageManager storageManager;
 
-  public Deserializer(StorageManager storageManager) {
+  Deserializer(StorageManager storageManager) {
     this.storageManager = storageManager;
+  }
+
+  /**
+   * Преобразует JsonArray в список Map, где каждая Map'а представляет собой сериализованный
+   * объект.
+   *
+   * @param className экземпляры какого класса сериализованы в .json файле.
+   * @return список мап, в котором в каждой Map'е лежит некоторый сериализованный объект данного
+   * класса. Возвращает null, если такого файла не существует.
+   */
+  public List<Map<String, Object>> getObjectsMaps(String className) {
+    JsonArray jsonArray = storageManager.getJsonArrayByClassName(className);
+    if (jsonArray == null || jsonArray.size() == 1) {
+      return new ArrayList<>();
+    }
+    Type listMapType = new TypeToken<List<Map<String, Object>>>() {
+    }.getType();
+    List<Map<String, Object>> allObjects = new Gson().fromJson(jsonArray, listMapType);
+    return allObjects.subList(1, allObjects.size()); // в 0 лежит currId
   }
 
   /**
@@ -30,32 +50,24 @@ public class Deserializer {
    * @param targetId его идентификатор в списке сериализованных объектов.
    */
   public Object deserialize(Class<?> clazz, int targetId) {
-    // Достаем все объекты из файла и все поля класса
-    Map<String, Field> allFields = getAllFields(clazz);
-    List<Map<String, Object>> objectMaps = storageManager.getObjectsMaps(clazz.getName());
+    List<Map<String, Object>> objectMaps = getObjectsMaps(clazz.getName()); //Достаем все объекты...
+    Map<String, Field> allFields = getAllFields(clazz); // ...из файла и все поля класса
 
-    // Создаем пустой целевой объект
     Object targetObject;
     try {
-      targetObject = clazz.getDeclaredConstructor().newInstance();
+      targetObject = clazz.getDeclaredConstructor().newInstance();  // Создаем пустой целевой объект
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
              NoSuchMethodException e) {
       System.err.println("Error during creation a target object");
       throw new RuntimeException(e);
     }
-
-    // итерируемся по мапам объектов
     Gson gson = new Gson();
-    for (Map<String, Object> someObjMap : Objects.requireNonNull(objectMaps)) {
-      // Проверяем, нужный ли это id
+    for (Map<String, Object> someObjMap : objectMaps) { // итерируемся по Map'ам объектов
       int id = gson.fromJson(someObjMap.get("id").toString(), Integer.class);
-      if (id != targetId) {
+      if (id != targetId) { // Проверяем, нужный ли это id
         continue;
       }
-
-      // Если это объект, который нам нужен
-      // Сначала проходимся по всем обычным полям
-      if (someObjMap.containsKey("fields")) {
+      if (someObjMap.containsKey("fields")) { // Сначала проходимся по всем обычным полям
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> fields = (List<Map<String, Object>>) someObjMap.get("fields");
         for (Map<String, Object> fieldMap : fields) {
@@ -90,7 +102,7 @@ public class Deserializer {
 
             // Если это коллекция композитных объектов
             if (isCollectionOfSerializedClass(field)) {
-              // Достаем мапу композитных объектов
+              // Достаем Map'у композитных объектов
               Type listMapType = new TypeToken<List<Map<String, Object>>>() {
               }.getType();
               List<Map<String, Object>> listCompositeObject = gson.fromJson(

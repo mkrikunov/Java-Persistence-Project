@@ -3,7 +3,11 @@ package persistence.project;
 import static persistence.project.Utils.getAllFields;
 import static persistence.project.Utils.isCollectionOfSerializedClass;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -12,32 +16,30 @@ import java.util.Map;
 import java.util.Objects;
 import persistence.project.annotations.ID;
 import persistence.project.annotations.SerializedClass;
+import persistence.project.id.IdGenerator;
 
 public class Serializer {
 
   private final StorageManager storageManager;
+  private final IdGenerator idGenerator;
 
-  public Serializer(StorageManager storageManager) {
+  Serializer(StorageManager storageManager, IdGenerator idGenerator) {
     this.storageManager = storageManager;
+    this.idGenerator = idGenerator;
   }
 
   private Integer findOrSerialize(Object object) throws Exception {
     // Получаем Id объекта
-    var allFields = getAllFields(object.getClass());
-    Field fieldId = allFields.get("id");
-    fieldId.setAccessible(true);
-    int objId = fieldId.getInt(object);
-    // Если объект уже сериализован -> возвращаем Id
-    if (objId != 0) {
+    var objId = Utils.getObjectId(object);
+    if (objId != 0) { // Если объект уже сериализован -> возвращаем Id
       return objId;
     }
-    // иначе сериализуем
-    return serialize(object);
+    return createObjectMap(object); // иначе сериализуем
   }
 
 
   /**
-   * Создает мапу полей и их значений для объекта, отправляет мапу на запись в файл, а также
+   * Создает Map'у полей и их значений для объекта, отправляет Map'у на запись в файл, а также
    * проверяет, был ли объект уже сериализован, если да - при наличии изменений перезаписывает в
    * файл, иначе скип.
    *
@@ -45,10 +47,10 @@ public class Serializer {
    * @return идентификатор сериализованного объекта.
    * @throws Exception ???
    */
-  public Integer serialize(Object object) throws Exception {
+  public Integer createObjectMap(Object object) throws Exception {
+    var className = object.getClass().getName();
     if (object.getClass().isAnnotationPresent(SerializedClass.class)) {
       Map<String, Object> classMap = new LinkedHashMap<>(3);
-
       Map<String, Field> allFields = getAllFields(object.getClass());
       List<Map<String, Object>> fields = new ArrayList<>();
       List<Map<String, Object>> compositeFields = new ArrayList<>();
@@ -57,24 +59,14 @@ public class Serializer {
       for (String fieldName : allFields.keySet()) {
         Field field = allFields.get(fieldName);
         field.setAccessible(true);
-
-        // Если поле - ID
-        if (field.isAnnotationPresent(ID.class)) {
+        if (field.isAnnotationPresent(ID.class)) {  // Если поле - ID
           idField = field;
-          // Если объект уже был сериализован
-          if (idField.getInt(object) != 0) {
-            System.err.println("This object has already been serialized!");
-            return idField.getInt(object);
-          }
           continue;
         }
-
         var fieldValue = field.get(object);
-        // Если поле без значения
-        if (fieldValue == null) {
+        if (fieldValue == null) { // Если поле без значения
           continue;
         }
-
         Map<String, Object> someField = new LinkedHashMap<>(1);
         if (field.getType().isAnnotationPresent(SerializedClass.class)) {
           Map<String, Object> compositeObjectMap = new LinkedHashMap<>(2);
@@ -100,16 +92,33 @@ public class Serializer {
           fields.add(someField);
         }
       }
-      // Добавляем наборы полей в мапу объекта
-      if (!fields.isEmpty()) {
+
+      if (!fields.isEmpty()) {  // Добавляем наборы полей в Map'у объекта
         classMap.put("fields", fields);
       }
       if (!compositeFields.isEmpty()) {
         classMap.put("compositeFields", compositeFields);
       }
-      return storageManager.writeToFile(classMap, Objects.requireNonNull(idField), object);
+
+      int id = Objects.requireNonNull(idField).getInt(object);
+      if (id == 0) {
+        id = idGenerator.getCurrId();
+        classMap.put("id", id);
+        idField.set(object, id);
+        storageManager.updateStorage(classMap, className);
+      } else {
+        JsonArray jsonArray = storageManager.getJsonArrayByClassName(className);
+        Type type = new TypeToken<Map<String, Object>>() {
+        }.getType();
+        Gson gson = new Gson();
+        Map<String, Object> objectMap = gson.fromJson(jsonArray.get(id), type);
+        if (Utils.mapsAreNotEqual(classMap, objectMap)) {
+          storageManager.updateStorage(id, classMap, className);
+        }
+      }
+      return id;
     }
-    System.out.println("Class " + object.getClass().getName()
+    System.out.println("Class " + className
         + " isn't marked with an annotation SerializedClass");
     return 0;
   }

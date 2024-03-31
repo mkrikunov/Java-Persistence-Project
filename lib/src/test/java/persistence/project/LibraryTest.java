@@ -2,7 +2,6 @@ package persistence.project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.gson.JsonArray;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -39,10 +38,11 @@ class LibraryTest {
 
     // Здесь в targetId подставляем (currId + 2), либо же добавляем строку
     //         .ignoringFields("id", "kittens.id")
-    Cat cat = (Cat) manager.retrieve(Cat.class, 12);
+    Cat cat = (Cat) manager.retrieve(Cat.class, 3);
 
     assertThat(murkaCat)
         .usingRecursiveComparison()
+        .ignoringFields("id", "kittens.id")
         .isEqualTo(cat);
   }
 
@@ -60,6 +60,12 @@ class LibraryTest {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Test
+  void deserializeDog() {
+    Manager manager = new Manager(storagePath);
+    System.out.println(manager.retrieve(Dog.class, 1));
   }
 
   @Test
@@ -85,11 +91,21 @@ class LibraryTest {
     assertThat(horse2).usingRecursiveComparison().isEqualTo(julius);
   }
 
-
   @Test
-  public void getJsonArrayTest() {
-    StorageManager storageManager = new StorageManager(storagePath);
-    JsonArray jsonArray = storageManager.readJsonFile(Horse.class.getName());
-    System.out.println(jsonArray);
+  public void unitTest() {
+    Manager manager = new Manager(storagePath);
+    Dog dog = new Dog("Dog", 3, false);
+    manager.persist(dog);
+    try {
+      manager.flush();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    manager.remove(dog);
+    try {
+      manager.flush();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 }

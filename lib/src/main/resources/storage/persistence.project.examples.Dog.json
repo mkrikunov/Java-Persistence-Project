@@ -15,19 +15,19 @@
       }
     ],
     "id": 1
+  },
+  {
+    "fields": [
+      {
+        "nameAnimal": "Bobik"
+      },
+      {
+        "ageAnimal": 1
+      },
+      {
+        "pet": false
+      }
+    ],
+    "id": 2
   }
-,
-{
-  "fields": [
-    {
-      "nameAnimal": "Bobik"
-    },
-    {
-      "ageAnimal": 1
-    },
-    {
-      "pet": false
-    }
-  ],
-  "id": 2
-}]
+]
