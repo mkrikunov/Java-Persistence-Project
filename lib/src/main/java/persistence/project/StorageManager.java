@@ -124,4 +124,8 @@ public class StorageManager {
     }
     changedClassesNames.clear();
   }
+
+  Map<String, JsonArray> getStorage() {
+    return this.storage;
+  }
 }

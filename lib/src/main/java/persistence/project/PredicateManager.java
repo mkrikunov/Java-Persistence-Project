@@ -1,97 +1,155 @@
 package persistence.project;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.JsonObject;
+import java.util.Map;
 import java.util.function.Predicate;
-import persistence.project.examples.Cat;
 
-public class PredicateManager<T> {
-  private final String storagePath;
-  private final String fileName;
+public class PredicateManager {
 
-  public PredicateManager(String storagePath, String fileName) {
-    this.storagePath = storagePath;
-    this.fileName = fileName;
+  private final Map<String, JsonArray> storage;
+
+  public PredicateManager(Map<String, JsonArray> storage) {
+    this.storage = storage;
   }
 
-  public static List<File> findMatchingFiles(String folderPath, String endingString) {
-    List<File> matchingFiles = new ArrayList<>();
+  /**
+   * Метод, который используется при построении предиката, работающего с полями.
+   * <p>
+   * Пример использования:
+   * Predicate<JsonElement> predicate = element -> {
+   *       String nameAnimal = predicateManager.searchField(element, "nameAnimal");
+   *       return Objects.equals(nameAnimal, "Bob");
+   *     };
+   *
+   * @param element - JsonElement
+   * @param fieldName - имя поля, которое мы ищем
+   * @return - значение этого поля в данном элементе
+   */
+  public String searchField(JsonElement element, String fieldName) {
+    JsonArray fieldsArray = element.getAsJsonObject().get("fields").getAsJsonArray();
+    String fieldValue = "";
+    for (JsonElement elem: fieldsArray) {
+      fieldValue = elem.getAsJsonObject().get(fieldName).getAsString();
+      if (!fieldValue.isEmpty()) break;
+    }
+    return fieldValue;
+  }
 
-    File folder = new File(folderPath);
-    File[] files = folder.listFiles();
+  /**
+   * Метод, который используется при построении предиката, работающего с ID.
+   * <p>
+   * Пример использования:
+   * Predicate<JsonElement> predicate = element -> {
+   *       int id = predicateManager.searchID(element);
+   *       return id == 1;
+   *     };
+   *
+   * @param element - JsonElement
+   * @return - значение ID в этом элементе
+   */
+  public int searchID(JsonElement element) {
+    return element.getAsJsonObject().get("id").getAsInt();
+  }
 
-    if (files != null) {
-      for (File file : files) {
-        if (file.isFile() && file.getName().endsWith(endingString)) {
-          matchingFiles.add(file);
+  /**
+   * Метод для поиска в хранилище записей по предикату.
+   *
+   * @param predicate - предикат
+   * @return - массив отфильтрованных записей
+   */
+  public JsonArray filter(Predicate<JsonElement> predicate) {
+    JsonArray filteredArray = new JsonArray();
+    for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
+      for (JsonElement element : entry.getValue().getAsJsonArray()) {
+        //Пропускаем элемент с currID
+        if (element.getAsJsonObject().has("currID")) {
+          continue;
+        }
+        if (predicate.test(element)) {
+          filteredArray.add(element);
         }
       }
-    } else {
-      System.out.println("Указанный путь не существует или не является папкой");
     }
-
-    return matchingFiles;
+    return filteredArray;
   }
 
-  private Type getType() {
-    ParameterizedType superClass = (ParameterizedType) getClass().getGenericSuperclass();
-    return superClass.getActualTypeArguments()[0];
+  /**
+   * Метод для поиска в хранилище записей, не соответствующих предикату.
+   *
+   * @param predicate - предикат
+   * @return - массив отфильтрованных записей
+   */
+  public JsonArray filterNot(Predicate<JsonElement> predicate) {
+    JsonArray filteredArray = new JsonArray();
+    for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
+      for (JsonElement element : entry.getValue().getAsJsonArray()) {
+        //Пропускаем элемент с currID
+        if (element.getAsJsonObject().has("currID")) {
+          continue;
+        }
+        if (!predicate.test(element)) {
+          filteredArray.add(element);
+        }
+      }
+    }
+    return filteredArray;
   }
 
-  public List<T> filter(Predicate<T> predicate) throws IOException {
-    List<T> filteredRecords = new ArrayList<>();
-
-    String endingString = fileName + ".json";
-    List<File> matchingFiles = findMatchingFiles(storagePath, endingString);
-    Gson gson = new Gson();
-
-    for (File file : matchingFiles) {
-      try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-        JsonElement jsonElement = JsonParser.parseReader(reader);
-        if (jsonElement.isJsonArray()) {
-          JsonArray jsonArray = jsonElement.getAsJsonArray();
-          for (JsonElement element : jsonArray) {
-            T record = gson.fromJson(element, getType());
-            if (predicate.test(record)) {
-              filteredRecords.add(record);
-            }
+  /**
+   * Метод для поиска в хранилище записей,
+   * удовлетворяющих хотя бы одному предикату.
+   *
+   * @param predicates - предикаты
+   * @return - массив отфильтрованных записей
+   */
+  @SafeVarargs
+  public final JsonArray filterOr(Predicate<JsonElement>... predicates) {
+    JsonArray filteredArray = new JsonArray();
+    for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
+      for (JsonElement element : entry.getValue().getAsJsonArray()) {
+        if (element.getAsJsonObject().has("currID")) {
+          continue;
+        }
+        for (Predicate<JsonElement> predicate : predicates) {
+          if (predicate.test(element)) {
+            filteredArray.add(element);
+            break;
           }
         }
-      } catch (IOException e) {
-        System.err.println(e.getMessage());
-        System.exit(1);
       }
     }
-
-    return filteredRecords;
+    return filteredArray;
   }
 
-
-
-  public static void main(String[] args) {
-
-    String storagePath = "src/main/resources/storage";
-
-    PredicateManager<Cat> predicateManager = new PredicateManager<>(storagePath, "cat");
-
-    Predicate<Cat> predicate = cat -> cat.getAgeAnimal() == 5;
-
-    try {
-      List<Cat> filteredRecords = predicateManager.filter(predicate);
-      String dd = "";
-    } catch (IOException e) {
-      System.err.println(e.getMessage());
-      System.exit(1);
+  /**
+   * Метод для поиска в хранилище записей,
+   * удовлетворяющих всем предикатам.
+   *
+   * @param predicates - предикаты
+   * @return - массив отфильтрованных записей
+   */
+  @SafeVarargs
+  public final JsonArray filterAnd(Predicate<JsonElement>... predicates) {
+    JsonArray filteredArray = new JsonArray();
+    for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
+      for (JsonElement element : entry.getValue().getAsJsonArray()) {
+        if (element.getAsJsonObject().has("currID")) {
+          continue;
+        }
+        boolean allMatch = true;
+        for (Predicate<JsonElement> predicate : predicates) {
+          if (!predicate.test(element)) {
+            allMatch = false;
+            break;
+          }
+        }
+        if (allMatch) {
+          filteredArray.add(element);
+        }
+      }
     }
+    return filteredArray;
   }
 }

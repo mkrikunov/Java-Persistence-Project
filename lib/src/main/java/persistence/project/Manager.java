@@ -49,4 +49,8 @@ public class Manager {
   public Object retrieve(Class<?> targetClazz, int targetId) {
     return deserializer.deserialize(targetClazz, targetId);
   }
+
+  public StorageManager getStorageManager() {
+    return this.storageManager;
+  }
 }

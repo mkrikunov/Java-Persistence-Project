@@ -15,27 +15,27 @@
       }
     ],
     "id": 1
-  }
-,
-{
-  "fields": [
-    {
-      "nameAnimal": "Julius"
-    },
-    {
-      "ageAnimal": 5
-    },
-    {
-      "pet": true
-    }
-  ],
-  "compositeFields": [
-    {
-      "spouse": {
-        "name": "persistence.project.examples.Horse",
-        "id": 1
+  },
+  {
+    "fields": [
+      {
+        "nameAnimal": "Julius"
+      },
+      {
+        "ageAnimal": 5
+      },
+      {
+        "pet": true
       }
-    }
-  ],
-  "id": 2
-}]
+    ],
+    "compositeFields": [
+      {
+        "spouse": {
+          "name": "persistence.project.examples.Horse",
+          "id": 1
+        }
+      }
+    ],
+    "id": 2
+  }
+]

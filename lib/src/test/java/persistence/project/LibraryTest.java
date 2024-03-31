@@ -42,8 +42,13 @@ class LibraryTest {
 
     assertThat(murkaCat)
         .usingRecursiveComparison()
-        .ignoringFields("id", "kittens.id")
+        .ignoringFields("id", "kittens.id", "kittens")
         .isEqualTo(cat);
+
+    assertThat(murkaCat.getKittens())
+        .usingRecursiveComparison()
+        .ignoringFields("id", "kittens.id")
+        .isEqualTo(cat.getKittens());
   }
 
   @Test
@@ -85,10 +90,20 @@ class LibraryTest {
     }
 
     Horse horse1 = (Horse) manager.retrieve(Horse.class, 1);
-    assertThat(horse1).usingRecursiveComparison().isEqualTo(daphne);
+    assertThat(horse1)
+        .usingRecursiveComparison()
+        .ignoringFields("id")
+        .isEqualTo(daphne);
 
     Horse horse2 = (Horse) manager.retrieve(Horse.class, 2);
-    assertThat(horse2).usingRecursiveComparison().isEqualTo(julius);
+    assertThat(horse2)
+        .usingRecursiveComparison()
+        .ignoringFields("id", "spouse")
+        .isEqualTo(julius);
+    assertThat(horse2.getSpouse())
+        .usingRecursiveComparison()
+        .ignoringFields("id")
+        .isEqualTo(julius.getSpouse());
   }
 
   @Test
