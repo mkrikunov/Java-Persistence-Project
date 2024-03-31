@@ -102,7 +102,7 @@ public class Serializer {
 
       int id = Objects.requireNonNull(idField).getInt(object);
       if (id == 0) {
-        id = idGenerator.getCurrId();
+        id = idGenerator.generateId(object, className);
         classMap.put("id", id);
         idField.set(object, id);
         storageManager.updateStorage(classMap, className);

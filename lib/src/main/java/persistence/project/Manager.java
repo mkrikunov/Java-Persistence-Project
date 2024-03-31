@@ -14,7 +14,8 @@ public class Manager {
 
   public Manager(String storagePath) {
     storageManager = new StorageManager(storagePath);
-    serializer = new Serializer(storageManager, new DefaultIdGenerator());
+    serializer = new Serializer(storageManager,
+        new DefaultIdGenerator(storageManager));
     deserializer = new Deserializer(storageManager);
   }
 

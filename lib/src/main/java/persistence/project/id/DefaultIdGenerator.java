@@ -1,75 +1,43 @@
 package persistence.project.id;
 
-import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-import java.io.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.lang.reflect.Field;
+import persistence.project.StorageManager;
 
 public class DefaultIdGenerator implements IdGenerator {
-  private String jsonFilePath;
-  private final Gson gson = new Gson();
+  private final StorageManager storageManager;
 
-  private String getCurrId() {
+  public DefaultIdGenerator(StorageManager storageManager) {
+    this.storageManager = storageManager;
+  }
+
+  private String getCurrId(String className) {
     String id = "";
 
-    try (BufferedReader bufferedReader = new BufferedReader(new FileReader(jsonFilePath))) {
-
-      JsonArray jsonArray = JsonParser.parseReader(bufferedReader).getAsJsonArray();
-      if (!jsonArray.isJsonNull() && !jsonArray.isEmpty()) {
-        JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
-        if (jsonObject != null && jsonObject.has("currID")) {
-          id = jsonObject.get("currID").getAsString();
-        }
+    JsonArray jsonArray = storageManager.getJsonArrayByClassName(className);
+    if (!jsonArray.isJsonNull() && !jsonArray.isEmpty()) {
+      JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
+      if (jsonObject != null && jsonObject.has("currID")) {
+        id = jsonObject.get("currID").getAsString();
       }
-
-    } catch (IOException e) {
-      System.err.println(e.getMessage());
-      System.exit(1);
     }
 
+    setCurrId(Integer.parseInt(id) + 1, jsonArray);
     return id;
   }
 
-  private void setCurrId(int id) {
-    try {
-      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+  private void setCurrId(int newCurrID, JsonArray jsonArray) {
 
-      JsonReader reader = new JsonReader(new FileReader(jsonFilePath));
-      JsonElement rootElement = JsonParser.parseReader(reader);
-      reader.close();
-
-      if (rootElement.isJsonArray()) {
-        JsonArray jsonArray = rootElement.getAsJsonArray();
-        if (!jsonArray.isEmpty()) {
-          JsonElement firstElement = jsonArray.get(0);
-          if (firstElement.isJsonObject()) {
-            JsonObject firstObject = firstElement.getAsJsonObject();
-            if (firstObject.has("currID")) {
-              firstObject.addProperty("currID", id);
-            }
-          }
-        }
-      }
-
-      JsonWriter writer = new JsonWriter(new FileWriter(jsonFilePath));
-      writer.setIndent("  ");
-      gson.toJson(rootElement, writer);
-      writer.close();
-    } catch (FileNotFoundException e) {
-      throw new RuntimeException(e);
-    } catch (IOException e) {
-      System.err.println(e.getMessage());
-      System.exit(1);
-    }
+    JsonObject firstElement = jsonArray.get(0).getAsJsonObject();
+    firstElement.addProperty("currID", newCurrID);
+    jsonArray.set(0, firstElement);
   }
 
   @Override
-  public int generateId(Object object, String jsonFilePath) {
-    this.jsonFilePath = jsonFilePath;
+  public int generateId(Object object, String className) {
 
-    int id = Integer.parseInt(getCurrId());
-    setCurrId(id + 1);
+    int id = Integer.parseInt(getCurrId(className));
 
     try {
       Class<?> objectClass = object.getClass();

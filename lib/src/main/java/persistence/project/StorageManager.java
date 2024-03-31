@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-class StorageManager {
+public class StorageManager {
 
   private final String storagePath;
   private final Map<String, JsonArray> storage;
@@ -60,7 +60,7 @@ class StorageManager {
    * @param className имя класса, сериализованные объекты которого нужно получить в виде JsonArray.
    * @return полученный JsonArray.
    */
-  JsonArray getJsonArrayByClassName(String className) {
+  public JsonArray getJsonArrayByClassName(String className) {
     if (storage.containsKey(className)) {
       return storage.get(className);
     }
