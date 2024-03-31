@@ -2,38 +2,104 @@ package persistence.project;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import persistence.project.id.DefaultIdGenerator;
-import persistence.project.id.IdGenerator;
+import java.util.Objects;
 
 public class StorageManager {
 
-  private final IdGenerator idGenerator;
-
   private final String storagePath;
+  private final Map<String, JsonArray> storage;
 
   public StorageManager(String storagePath) {
     this.storagePath = storagePath;
-    this.idGenerator = new DefaultIdGenerator();
+    this.storage = new HashMap<>();
   }
 
-  public StorageManager(IdGenerator idGenerator, String storagePath) {
-    this.storagePath = storagePath;
-    this.idGenerator = idGenerator;
+  /**
+   * Получить JsonArray сериализованных объектов некоторого класса.
+   *
+   * @param className имя класса, JsonArray которого нужно получить.
+   * @return JsonArray, соответствующий классу.
+   */
+  public JsonArray getJsonArrayByName(String className) {
+    return storage.get(className);
+  }
+
+  /**
+   * Заполняет пустой json файл, записывая туда currId равный 1. Предполагает, что пустой файл уже
+   * был создан.
+   *
+   * @param jsonFilePath путь до целевого пустого файла.
+   * @return записанный в данный файл JsonArray.
+   */
+  private JsonArray fillEmptyJsonFile(String jsonFilePath) {
+    Map<String, Integer> currId = new HashMap<>();
+    currId.put("currID", 1);
+
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    JsonArray jsonArray = new JsonArray(1);
+    jsonArray.add(gson.toJsonTree(currId));
+
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(jsonFilePath))) {
+      gson.toJson(jsonArray, writer);
+    } catch (IOException e) {
+      System.err.println("Error while filling an empty json file" + e.getMessage());
+      throw new RuntimeException(e);
+    }
+
+    return jsonArray;
+  }
+
+  /**
+   * Находит json файл заданного класса и читает из него ссериализованные объекты в JsonArray.
+   * Рекомендуется проверить, что такой файл вообще существует.
+   *
+   * @param className имя класса, сериализованные объекты которого нужно получить в виде JsonArray.
+   * @return полученный JsonArray.
+   */
+  public JsonArray readJsonFile(String className) {
+    String jsonFilePath = storagePath + File.separator + className + ".json";
+    File jsonFile = new File(jsonFilePath);
+    try {
+      if (jsonFile.createNewFile()) {
+        return fillEmptyJsonFile(jsonFilePath);
+      }
+    } catch (IOException e) {
+      System.err.println("Error while creating an empty json file" + e.getMessage());
+      throw new RuntimeException(e);
+    }
+
+    JsonElement rootElement = null;
+    try (JsonReader reader = new JsonReader(new FileReader(jsonFilePath))) {
+      rootElement = JsonParser.parseReader(reader);
+    } catch (IOException e) {
+      System.err.println(e.getMessage());
+    }
+    if (Objects.requireNonNull(rootElement).isJsonArray()) {
+      return rootElement.getAsJsonArray();
+    }
+    return null;
   }
 
   /**
    * Считывает из .json файла данные в список мап.
    *
-   * @param className   экземпляры какого класса сериализованы в .json файле.
+   * @param className экземпляры какого класса сериализованы в .json файле.
    * @return список мап, в котором в каждой мапе лежит некоторый сериализованный объект данного
    * класса. Возвращает null, если такого файла не существует.
    */
@@ -74,7 +140,7 @@ public class StorageManager {
       }
 
       if (idField.getInt(object) == 0) {
-        id = idGenerator.generateId(object, jsonFilePath);
+        //id = idGenerator.generateId(object, jsonFilePath);
         idField.set(object, id);
         data.put("id", id);
       }

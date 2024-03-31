@@ -36,6 +36,15 @@ public class Serializer {
   }
 
 
+  /**
+   * Создает мапу полей и их значений для объекта, отправляет мапу на запись в файл, а также
+   * проверяет, был ли объект уже сериализован, если да - при наличии изменений перезаписывает в
+   * файл, иначе скип.
+   *
+   * @param object объект, который нужно сериализовать.
+   * @return идентификатор сериализованного объекта.
+   * @throws Exception ???
+   */
   public Integer serialize(Object object) throws Exception {
     if (object.getClass().isAnnotationPresent(SerializedClass.class)) {
       Map<String, Object> classMap = new LinkedHashMap<>(3);

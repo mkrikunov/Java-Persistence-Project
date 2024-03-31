@@ -2,6 +2,7 @@ package persistence.project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.JsonArray;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -10,10 +11,11 @@ import persistence.project.examples.Dog;
 import persistence.project.examples.Horse;
 
 class LibraryTest {
+  private final String storagePath = "src/main/resources/storage";
 
   @Test
   void catToJsonFileAndBack() {
-    Manager manager = new Manager("src/main/resources/storage");
+    Manager manager = new Manager(storagePath);
 
     Cat bayunCat = new Cat("Bayun", 5, true);
     manager.persist(bayunCat);
@@ -35,17 +37,18 @@ class LibraryTest {
       throw new RuntimeException(e);
     }
 
-    Cat cat = (Cat) manager.retrieve(Cat.class, 3);
+    // Здесь в targetId подставляем (currId + 2), либо же добавляем строку
+    //         .ignoringFields("id", "kittens.id")
+    Cat cat = (Cat) manager.retrieve(Cat.class, 12);
 
     assertThat(murkaCat)
         .usingRecursiveComparison()
-        .ignoringFields("id", "kittens.id")
         .isEqualTo(cat);
   }
 
   @Test
   void dogsToJsonFile() {
-    Manager manager = new Manager("src/main/resources/storage");
+    Manager manager = new Manager(storagePath);
 
     Dog bobikDog = new Dog("Bobik", 1, false);
     manager.persist(bobikDog);
@@ -61,7 +64,7 @@ class LibraryTest {
 
   @Test
   public void horseToJsonFileAndBack() {
-    Manager manager = new Manager("src/main/resources/storage");
+    Manager manager = new Manager(storagePath);
 
     Horse julius = new Horse("Julius", 5, true);
     Horse daphne = new Horse("Daphne", 4, false);
@@ -80,5 +83,13 @@ class LibraryTest {
 
     Horse horse2 = (Horse) manager.retrieve(Horse.class, 2);
     assertThat(horse2).usingRecursiveComparison().isEqualTo(julius);
+  }
+
+
+  @Test
+  public void getJsonArrayTest() {
+    StorageManager storageManager = new StorageManager(storagePath);
+    JsonArray jsonArray = storageManager.readJsonFile(Horse.class.getName());
+    System.out.println(jsonArray);
   }
 }
