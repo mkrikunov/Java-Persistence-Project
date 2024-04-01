@@ -1,28 +1,12 @@
 [
   {
-    "currID": 4
+    "currID": 7
   },
   {
+    "id": 1,
     "fields": [
       {
-        "pip": "pip"
-      },
-      {
-        "nameAnimal": "Bayun"
-      },
-      {
-        "ageAnimal": 5
-      },
-      {
-        "pet": true
-      }
-    ],
-    "id": 1
-  },
-  {
-    "fields": [
-      {
-        "pip": "pip"
+        "tail": "Long"
       },
       {
         "nameAnimal": "Seva"
@@ -36,9 +20,27 @@
     ]
   },
   {
+    "id": 2,
     "fields": [
       {
-        "pip": "pip"
+        "tail": "Short"
+      },
+      {
+        "nameAnimal": "Bayun"
+      },
+      {
+        "ageAnimal": 5
+      },
+      {
+        "pet": true
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "fields": [
+      {
+        "tail": "Middle"
       },
       {
         "nameAnimal": "Murka"
@@ -55,15 +57,79 @@
         "kittens": [
           {
             "name": "persistence.project.examples.Cat",
-            "id": 1
+            "id": 2
           },
           {
             "name": "persistence.project.examples.Cat",
-            "id": 2
+            "id": 1
           }
         ]
       }
+    ]
+  },
+  {
+    "id": 5,
+    "fields": [
+      {
+        "tail": "Short"
+      },
+      {
+        "nameAnimal": "Bayun"
+      },
+      {
+        "ageAnimal": 5
+      },
+      {
+        "pet": true
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "fields": [
+      {
+        "tail": "Middle"
+      },
+      {
+        "nameAnimal": "Murka"
+      },
+      {
+        "ageAnimal": 2
+      },
+      {
+        "pet": true
+      }
     ],
-    "id": 3
+    "compositeFields": [
+      {
+        "kittens": [
+          {
+            "name": "persistence.project.examples.Cat",
+            "id": 5
+          },
+          {
+            "name": "persistence.project.examples.Cat",
+            "id": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "fields": [
+      {
+        "tail": "Short"
+      },
+      {
+        "nameAnimal": "Seva"
+      },
+      {
+        "ageAnimal": 1
+      },
+      {
+        "pet": true
+      }
+    ]
   }
 ]

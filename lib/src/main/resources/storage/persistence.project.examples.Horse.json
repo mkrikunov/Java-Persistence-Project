@@ -3,6 +3,7 @@
     "currID": 3
   },
   {
+    "id": 2,
     "fields": [
       {
         "nameAnimal": "Daphne"
@@ -13,10 +14,10 @@
       {
         "pet": false
       }
-    ],
-    "id": 1
+    ]
   },
   {
+    "id": 1,
     "fields": [
       {
         "nameAnimal": "Julius"
@@ -32,10 +33,9 @@
       {
         "spouse": {
           "name": "persistence.project.examples.Horse",
-          "id": 1
+          "id": 2
         }
       }
-    ],
-    "id": 2
+    ]
   }
 ]

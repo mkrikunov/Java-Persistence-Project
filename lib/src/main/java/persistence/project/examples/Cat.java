@@ -10,20 +10,21 @@ public class Cat {
   private String nameAnimal;
   private int ageAnimal;
   public boolean pet;
+  public Tail tail;
 
   @ID
   private int id = 0;
 
   private List<Cat> kittens;
-  public String pip = "pip";
 
   public Cat() {
   }
 
-  public Cat(String name, int age, boolean pet) {
+  public Cat(String name, int age, boolean pet, Tail tail) {
     setNameAnimal(name);
     setAgeAnimal(age);
     this.pet = pet;
+    this.tail = tail;
     setKittens(null);
   }
 
@@ -33,7 +34,7 @@ public class Cat {
         "age: " + getAgeAnimal() + "\n" +
         "pet: " + pet + "\n" +
         getKittensToString() +
-        "pip: " + pip;
+        "tail: " + tail;
   }
 
   public String getKittensToString() {

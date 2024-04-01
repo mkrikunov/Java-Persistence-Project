@@ -46,7 +46,7 @@ public class Manager {
     clear();
   }
 
-  public Object retrieve(Class<?> targetClazz, int targetId) {
+  public <T> T retrieve(Class<T> targetClazz, int targetId) {
     return deserializer.deserialize(targetClazz, targetId);
   }
 

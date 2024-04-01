@@ -29,13 +29,13 @@ public class Deserializer {
    * @param clazz    класс, экземпляр которого нужно десериализовать.
    * @param targetId его идентификатор в списке сериализованных объектов.
    */
-  public Object deserialize(Class<?> clazz, int targetId) {
+  public <T> T deserialize(Class<T> clazz, int targetId) {
     Map<String, Object> objectMap = findById(targetId, clazz.getName(), storageManager);
     if (objectMap == null) {
       return null;
     }
     Map<String, Field> allFields = getAllFields(clazz);
-    Object targetObject;
+    T targetObject;
     try {
       targetObject = clazz.getDeclaredConstructor().newInstance();  // Создаем пустой целевой объект
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
@@ -53,7 +53,7 @@ public class Deserializer {
         for (String fieldName : fieldMap.keySet()) {
           Field field = allFields.get(fieldName);
           field.setAccessible(true);
-          Type fieldType = field.getType();
+          Type fieldType = field.getGenericType();
           Object value = gson.fromJson(fieldMap.get(fieldName).toString(), fieldType);
           try {
             field.set(targetObject, value);
@@ -124,13 +124,13 @@ public class Deserializer {
       }
     }
 
-      Field field = allFields.get("id");
-      field.setAccessible(true);
-      try {
-        field.set(targetObject, targetId);
-      } catch (IllegalAccessException e) {
-        System.err.println("Error while assigning an id");
-      }
+    Field field = allFields.get("id");
+    field.setAccessible(true);
+    try {
+      field.set(targetObject, targetId);
+    } catch (IllegalAccessException e) {
+      System.err.println("Error while assigning an id");
+    }
 
     return targetObject;
   }
