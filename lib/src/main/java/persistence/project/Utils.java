@@ -1,7 +1,11 @@
 package persistence.project;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -84,5 +88,26 @@ public class Utils {
       System.err.println(e.getMessage());
     }
     return objId;
+  }
+
+  public static Map<String, Object> findById(int targetId, String className,
+      StorageManager storageManager) {
+    JsonArray jsonArray = storageManager.getJsonArrayByClassName(className);
+    List<Map<String, Object>> allObjectsMaps;
+    if (jsonArray == null || jsonArray.size() == 1) {
+      allObjectsMaps = new ArrayList<>();
+    } else {
+      Type listMapType = new TypeToken<List<Map<String, Object>>>() {
+      }.getType();
+      allObjectsMaps = new Gson().fromJson(jsonArray, listMapType);
+    }
+    Gson gson = new Gson();
+    for (Map<String, Object> someObjMap : allObjectsMaps.subList(1, allObjectsMaps.size())) { // итерируемся по Map'ам объектов
+      int id = gson.fromJson(someObjMap.get("id").toString(), Integer.class);
+      if (id == targetId) { // Проверяем, нужный ли это id
+        return someObjMap;
+      }
+    }
+    return null;
   }
 }

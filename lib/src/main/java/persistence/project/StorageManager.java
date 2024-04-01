@@ -1,5 +1,7 @@
 package persistence.project;
 
+import static persistence.project.Utils.findById;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -101,16 +103,10 @@ public class StorageManager {
     changedClassesNames.add(className);
   }
 
-  void updateStorage(int index, Map<String, Object> data, String className) {
-    JsonArray jsonArray = getJsonArrayByClassName(className);
-    Gson gson = new Gson();
-    jsonArray.set(index, gson.toJsonTree(data));
-    changedClassesNames.add(className);
-  }
-
-  void remove(String className, int index) {
+  void remove(String className, int id) {
     var jsonArray = getJsonArrayByClassName(className);
-    jsonArray.remove(index);
+    Gson gson = new Gson();
+    jsonArray.remove(gson.toJsonTree(findById(id, className, this)));
     changedClassesNames.add(className);
   }
 

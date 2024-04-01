@@ -70,4 +70,8 @@ public class Cat {
   public void setAgeAnimal(int ageAnimal) {
     this.ageAnimal = ageAnimal;
   }
+
+  public int getId() {
+    return id;
+  }
 }

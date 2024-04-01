@@ -1,13 +1,10 @@
 package persistence.project;
 
+import static persistence.project.Utils.findById;
 import static persistence.project.Utils.getAllFields;
 import static persistence.project.Utils.isCollectionOfSerializedClass;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -54,13 +51,20 @@ public class Serializer {
       Map<String, Field> allFields = getAllFields(object.getClass());
       List<Map<String, Object>> fields = new ArrayList<>();
       List<Map<String, Object>> compositeFields = new ArrayList<>();
-      Field idField = null;
+      int id = 0;
+      boolean wasZeroID = false;
 
       for (String fieldName : allFields.keySet()) {
         Field field = allFields.get(fieldName);
         field.setAccessible(true);
         if (field.isAnnotationPresent(ID.class)) {  // Если поле - ID
-          idField = field;
+          id = Objects.requireNonNull(field).getInt(object);
+          if (id == 0) {
+            id = idGenerator.generateId(className);
+            field.set(object, id);
+            wasZeroID = true;
+          }
+          classMap.put("id", id);
           continue;
         }
         var fieldValue = field.get(object);
@@ -100,22 +104,13 @@ public class Serializer {
         classMap.put("compositeFields", compositeFields);
       }
 
-      int id = Objects.requireNonNull(idField).getInt(object);
-      if (id == 0) {
-        id = idGenerator.generateId(object, className);
-        classMap.put("id", id);
-        idField.set(object, id);
-        storageManager.updateStorage(classMap, className);
-      } else {
-        JsonArray jsonArray = storageManager.getJsonArrayByClassName(className);
-        Type type = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        Gson gson = new Gson();
-        Map<String, Object> objectMap = gson.fromJson(jsonArray.get(id), type);
-        if (Utils.mapsAreNotEqual(classMap, objectMap)) {
-          storageManager.updateStorage(id, classMap, className);
+      if (!wasZeroID) {
+        Map<String, Object> objectMap = findById(id, className, storageManager);
+        if (objectMap != null && Utils.mapsAreNotEqual(classMap, objectMap)) {
+          storageManager.remove(className, id);
         }
       }
+      storageManager.updateStorage(classMap, className);
       return id;
     }
     System.out.println("Class " + className

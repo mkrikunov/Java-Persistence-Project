@@ -1,0 +1,33 @@
+[
+  {
+    "currID": 4
+  },
+  {
+    "id": 1,
+    "fields": [
+      {
+        "nameAnimal": "Bobik"
+      },
+      {
+        "ageAnimal": 1
+      },
+      {
+        "pet": false
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "fields": [
+      {
+        "nameAnimal": "Muhtar"
+      },
+      {
+        "ageAnimal": 10
+      },
+      {
+        "pet": true
+      }
+    ]
+  }
+]

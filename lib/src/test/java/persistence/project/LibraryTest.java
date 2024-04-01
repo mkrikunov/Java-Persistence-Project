@@ -10,6 +10,7 @@ import persistence.project.examples.Dog;
 import persistence.project.examples.Horse;
 
 class LibraryTest {
+
   private final String storagePath = "src/main/resources/storage";
 
   @Test
@@ -36,19 +37,11 @@ class LibraryTest {
       throw new RuntimeException(e);
     }
 
-    // Здесь в targetId подставляем (currId + 2), либо же добавляем строку
-    //         .ignoringFields("id", "kittens.id")
-    Cat cat = (Cat) manager.retrieve(Cat.class, 3);
+    Cat cat = (Cat) manager.retrieve(Cat.class, murkaCat.getId());
 
     assertThat(murkaCat)
         .usingRecursiveComparison()
-        .ignoringFields("id", "kittens.id", "kittens")
         .isEqualTo(cat);
-
-    assertThat(murkaCat.getKittens())
-        .usingRecursiveComparison()
-        .ignoringFields("id", "kittens.id")
-        .isEqualTo(cat.getKittens());
   }
 
   @Test
@@ -65,12 +58,18 @@ class LibraryTest {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-  }
 
-  @Test
-  void deserializeDog() {
-    Manager manager = new Manager(storagePath);
-    System.out.println(manager.retrieve(Dog.class, 1));
+    Dog dog = (Dog) manager.retrieve(Dog.class, bobikDog.getId());
+
+    assertThat(dog)
+        .usingRecursiveComparison()
+        .isEqualTo(bobikDog);
+
+    dog = (Dog) manager.retrieve(Dog.class, muhtarDog.getId());
+
+    assertThat(dog)
+        .usingRecursiveComparison()
+        .isEqualTo(muhtarDog);
   }
 
   @Test
@@ -89,25 +88,19 @@ class LibraryTest {
       throw new RuntimeException(e);
     }
 
-    Horse horse1 = (Horse) manager.retrieve(Horse.class, 1);
+    Horse horse1 = (Horse) manager.retrieve(Horse.class, daphne.getId());
     assertThat(horse1)
         .usingRecursiveComparison()
-        .ignoringFields("id")
         .isEqualTo(daphne);
 
-    Horse horse2 = (Horse) manager.retrieve(Horse.class, 2);
+    Horse horse2 = (Horse) manager.retrieve(Horse.class, julius.getId());
     assertThat(horse2)
         .usingRecursiveComparison()
-        .ignoringFields("id", "spouse")
         .isEqualTo(julius);
-    assertThat(horse2.getSpouse())
-        .usingRecursiveComparison()
-        .ignoringFields("id")
-        .isEqualTo(julius.getSpouse());
   }
 
   @Test
-  public void unitTest() {
+  public void serializeAndRemoveDog() {
     Manager manager = new Manager(storagePath);
     Dog dog = new Dog("Dog", 3, false);
     manager.persist(dog);
@@ -116,11 +109,18 @@ class LibraryTest {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+    assertThat(manager.retrieve(Dog.class, dog.getId()))
+        .usingRecursiveComparison()
+        .isEqualTo(dog);
+
+
     manager.remove(dog);
     try {
       manager.flush();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+    assertThat(manager.retrieve(Dog.class, dog.getId()))
+        .isNull();
   }
 }

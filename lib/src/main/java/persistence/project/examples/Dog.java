@@ -44,4 +44,8 @@ public class Dog {
   public void setAgeAnimal(int ageAnimal) {
     this.ageAnimal = ageAnimal;
   }
+
+  public int getId() {
+    return id;
+  }
 }
