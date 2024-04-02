@@ -137,7 +137,7 @@ public class StorageManager {
 
     Map<String, JsonArray> filteredMap = new HashMap<>();
     JsonArray filteredArray = new JsonArray();
-    for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
+    for (Map.Entry<String, JsonArray> entry : storage.entrySet()) {
       for (JsonElement element : entry.getValue().getAsJsonArray()) {
         //Пропускаем элемент с currID
         if (element.getAsJsonObject().has("currID")) {
@@ -165,7 +165,7 @@ public class StorageManager {
 
     Map<String, JsonArray> filteredMap = new HashMap<>();
     JsonArray filteredArray = new JsonArray();
-    for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
+    for (Map.Entry<String, JsonArray> entry : storage.entrySet()) {
       for (JsonElement element : entry.getValue().getAsJsonArray()) {
         //Пропускаем элемент с currID
         if (element.getAsJsonObject().has("currID")) {
@@ -183,8 +183,7 @@ public class StorageManager {
   }
 
   /**
-   * Метод для поиска в хранилище записей,
-   * удовлетворяющих хотя бы одному предикату.
+   * Метод для поиска в хранилище записей, удовлетворяющих хотя бы одному предикату.
    *
    * @param searchPredicates - предикаты
    * @return - массив отфильтрованных записей
@@ -192,7 +191,7 @@ public class StorageManager {
   public Map<String, JsonArray> filterOr(SearchPredicate... searchPredicates) {
     Map<String, JsonArray> filteredMap = new HashMap<>();
     JsonArray filteredArray = new JsonArray();
-    for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
+    for (Map.Entry<String, JsonArray> entry : storage.entrySet()) {
       for (JsonElement element : entry.getValue().getAsJsonArray()) {
         if (element.getAsJsonObject().has("currID")) {
           continue;
@@ -213,8 +212,7 @@ public class StorageManager {
   }
 
   /**
-   * Метод для поиска в хранилище записей,
-   * удовлетворяющих всем предикатам.
+   * Метод для поиска в хранилище записей, удовлетворяющих всем предикатам.
    *
    * @param searchPredicates - предикаты
    * @return - массив отфильтрованных записей
@@ -222,7 +220,7 @@ public class StorageManager {
   public Map<String, JsonArray> filterAnd(SearchPredicate... searchPredicates) {
     Map<String, JsonArray> filteredMap = new HashMap<>();
     JsonArray filteredArray = new JsonArray();
-    for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
+    for (Map.Entry<String, JsonArray> entry : storage.entrySet()) {
       for (JsonElement element : entry.getValue().getAsJsonArray()) {
         if (element.getAsJsonObject().has("currID")) {
           continue;

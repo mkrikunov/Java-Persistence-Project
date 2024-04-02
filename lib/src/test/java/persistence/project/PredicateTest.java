@@ -1,6 +1,7 @@
 package persistence.project;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.jupiter.api.Assertions;
 import java.util.ArrayList;
@@ -30,8 +31,6 @@ public class PredicateTest {
       throw new RuntimeException(e);
     }
 
-
-
     SearchPredicate predicate1 =
         new SearchPredicate("nameAnimal", "Tolik", "==");
     List<Dog> dogs1 = manager.filter(predicate1);
@@ -39,8 +38,6 @@ public class PredicateTest {
     assertThat(dogs1.get(0))
         .usingRecursiveComparison()
         .isEqualTo(tolikDog);
-
-
 
     SearchPredicate predicate2 =
         new SearchPredicate("nameAnimal", "Leo", "==");
@@ -58,8 +55,6 @@ public class PredicateTest {
     }
     Assertions.assertTrue(flag2);
 
-
-
     SearchPredicate predicate3 =
         new SearchPredicate("ageAnimal", 7, "==");
     List<Dog> dogs3 = manager.filterNot(predicate3);
@@ -75,8 +70,6 @@ public class PredicateTest {
       flag3 = EqualsBuilder.reflectionEquals(dogs3.get(1), dogsList3.get(0), "id");
     }
     Assertions.assertTrue(flag3);
-
-
 
     SearchPredicate predicate4 =
         new SearchPredicate("ageAnimal", 5, "<");
@@ -95,8 +88,6 @@ public class PredicateTest {
       flag4 = EqualsBuilder.reflectionEquals(dogs4.get(1), dogsList4.get(0), "id");
     }
     Assertions.assertTrue(flag4);
-
-
 
     SearchPredicate predicate6 =
         new SearchPredicate("ageAnimal", 5, "<=");

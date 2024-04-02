@@ -11,6 +11,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import persistence.project.annotations.SerializedClass;
@@ -18,9 +19,15 @@ import persistence.project.annotations.SerializedClass;
 public class Deserializer {
 
   private final StorageManager storageManager;
+  private final Map<String, Object> mapDeserializedObjects;
 
   Deserializer(StorageManager storageManager) {
     this.storageManager = storageManager;
+    mapDeserializedObjects = new HashMap<>();
+  }
+
+  public void clear() {
+    mapDeserializedObjects.clear();
   }
 
   /**
@@ -30,6 +37,13 @@ public class Deserializer {
    * @param targetId его идентификатор в списке сериализованных объектов.
    */
   public <T> T deserialize(Class<T> clazz, int targetId) {
+    String key = clazz.getName() + targetId;
+    if (mapDeserializedObjects.containsKey(key)) {
+      @SuppressWarnings("unchecked")
+      T result = (T) mapDeserializedObjects.get(key);
+      return result;
+    }
+
     Map<String, Object> objectMap = findById(targetId, clazz.getName(), storageManager);
     if (objectMap == null) {
       return null;
@@ -43,6 +57,8 @@ public class Deserializer {
       System.err.println("Error during creation a target object");
       throw new RuntimeException(e);
     }
+
+    mapDeserializedObjects.put(key, targetObject);
 
     Gson gson = new Gson();
     if (objectMap.containsKey("fields")) { // Сначала проходимся по всем обычным полям

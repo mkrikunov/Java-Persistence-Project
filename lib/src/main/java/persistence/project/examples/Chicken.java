@@ -13,6 +13,7 @@ public class Chicken {
   private final List<Integer> laidEggsAtTime = new ArrayList<>();
   private final List<String> owners = new ArrayList<>();
   private String name = "";
+
   public Chicken() {
 
   }
@@ -32,6 +33,7 @@ public class Chicken {
   public List<String> getOwners() {
     return owners;
   }
+
   public void addOwner(String newOwner) {
     owners.add(newOwner);
   }

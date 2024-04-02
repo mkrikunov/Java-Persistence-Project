@@ -42,7 +42,7 @@ public class Serializer {
    *
    * @param object объект, который нужно сериализовать.
    * @return идентификатор сериализованного объекта.
-   * @throws Exception ???
+   * @throws Exception неожиданная ошибка в ходе работы.
    */
   public Integer createObjectMap(Object object) throws Exception {
     var className = object.getClass().getName();

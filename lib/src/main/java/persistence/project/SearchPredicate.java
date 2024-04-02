@@ -12,8 +12,8 @@ public class SearchPredicate {
   /**
    * Конструктор для предиката с числовым значением.
    *
-   * @param name - имя поля
-   * @param value - сравниваемое значение
+   * @param name      - имя поля
+   * @param value     - сравниваемое значение
    * @param operation - операция сравнения значения поля с именем name со сравниваемым значением
    */
   public SearchPredicate(String name, Integer value, String operation) {
@@ -48,7 +48,9 @@ public class SearchPredicate {
               yield false;
             }
           };
-        } else return false;
+        } else {
+          return false;
+        }
       };
     }
   }
@@ -56,8 +58,8 @@ public class SearchPredicate {
   /**
    * Конструктор для предиката со строковым значением.
    *
-   * @param name - имя поля
-   * @param value - сравниваемое значение
+   * @param name      - имя поля
+   * @param value     - сравниваемое значение
    * @param operation - операция сравнения значения поля с именем name со сравниваемым значением
    */
   public SearchPredicate(String name, String value, String operation) {
@@ -75,8 +77,8 @@ public class SearchPredicate {
   /**
    * Конструктор для предиката с булевым значением.
    *
-   * @param name - имя поля
-   * @param value - сравниваемое значение
+   * @param name      - имя поля
+   * @param value     - сравниваемое значение
    * @param operation - операция сравнения значения поля с именем name со сравниваемым значением
    */
   public SearchPredicate(String name, boolean value, String operation) {
@@ -107,13 +109,15 @@ public class SearchPredicate {
   private boolean searchBooleanField(JsonElement element, String fieldName) {
     JsonArray fieldsArray = element.getAsJsonObject().get("fields").getAsJsonArray();
     boolean fieldValue = false;
-    for (JsonElement elem: fieldsArray) {
+    for (JsonElement elem : fieldsArray) {
       try {
         fieldValue = elem.getAsJsonObject().get(fieldName).getAsBoolean();
       } catch (NullPointerException e) {
         continue;
       }
-      if (!fieldValue) break;
+      if (!fieldValue) {
+        break;
+      }
     }
     return fieldValue;
   }
@@ -121,13 +125,15 @@ public class SearchPredicate {
   private String searchField(JsonElement element, String fieldName) {
     JsonArray fieldsArray = element.getAsJsonObject().get("fields").getAsJsonArray();
     String fieldValue = "";
-    for (JsonElement elem: fieldsArray) {
+    for (JsonElement elem : fieldsArray) {
       try {
         fieldValue = elem.getAsJsonObject().get(fieldName).getAsString();
       } catch (NullPointerException e) {
         continue;
       }
-      if (!fieldValue.isEmpty()) break;
+      if (!fieldValue.isEmpty()) {
+        break;
+      }
     }
     return fieldValue;
   }
