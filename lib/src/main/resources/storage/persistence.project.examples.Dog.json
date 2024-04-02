@@ -1,0 +1,75 @@
+[
+  {
+    "currID": 6
+  },
+  {
+    "id": 1,
+    "fields": [
+      {
+        "nameAnimal": "Leo"
+      },
+      {
+        "ageAnimal": 5
+      },
+      {
+        "pet": true
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "fields": [
+      {
+        "nameAnimal": "Tolik"
+      },
+      {
+        "ageAnimal": 7
+      },
+      {
+        "pet": true
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "fields": [
+      {
+        "nameAnimal": "Leo"
+      },
+      {
+        "ageAnimal": 7
+      },
+      {
+        "pet": false
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "fields": [
+      {
+        "nameAnimal": "Muhtar"
+      },
+      {
+        "ageAnimal": 7
+      },
+      {
+        "pet": true
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "fields": [
+      {
+        "nameAnimal": "Bobik"
+      },
+      {
+        "ageAnimal": 1
+      },
+      {
+        "pet": false
+      }
+    ]
+  }
+]
