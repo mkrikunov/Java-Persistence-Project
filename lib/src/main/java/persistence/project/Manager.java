@@ -56,8 +56,6 @@ public class Manager {
     return deserializer.deserialize(targetClazz, targetId);
   }
 
-
-
   public <T> List<T> filter(SearchPredicate predicate) {
     Map<String, JsonArray> filteredMap = storageManager.filter(predicate);
     List<T> deserializedObjects = new ArrayList<>();
