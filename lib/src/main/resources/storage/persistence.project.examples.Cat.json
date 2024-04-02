@@ -1,0 +1,108 @@
+[
+  {
+    "currID": 5
+  },
+  {
+    "id": 1,
+    "fields": [
+      {
+        "ageAnimal": 0
+      },
+      {
+        "pet": false
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "fields": [
+      {
+        "tail": "Middle"
+      },
+      {
+        "nameAnimal": "Bayun"
+      },
+      {
+        "ageAnimal": 5
+      },
+      {
+        "pet": true
+      }
+    ],
+    "compositeFields": [
+      {
+        "mother": {
+          "name": "persistence.project.examples.Cat",
+          "id": 2
+        }
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "fields": [
+      {
+        "tail": "Long"
+      },
+      {
+        "owners": [
+          "Ivan"
+        ]
+      },
+      {
+        "nameAnimal": "Murka"
+      },
+      {
+        "ageAnimal": 8
+      },
+      {
+        "pet": true
+      }
+    ],
+    "compositeFields": [
+      {
+        "mother": {
+          "name": "persistence.project.examples.Cat",
+          "id": 1
+        }
+      },
+      {
+        "kittens": [
+          {
+            "name": "persistence.project.examples.Cat",
+            "id": 3
+          },
+          {
+            "name": "persistence.project.examples.Cat",
+            "id": 4
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "fields": [
+      {
+        "tail": "Long"
+      },
+      {
+        "nameAnimal": "Seva"
+      },
+      {
+        "ageAnimal": 1
+      },
+      {
+        "pet": true
+      }
+    ],
+    "compositeFields": [
+      {
+        "mother": {
+          "name": "persistence.project.examples.Cat",
+          "id": 2
+        }
+      }
+    ]
+  }
+]
