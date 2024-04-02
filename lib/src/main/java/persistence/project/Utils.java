@@ -95,14 +95,14 @@ public class Utils {
     JsonArray jsonArray = storageManager.getJsonArrayByClassName(className);
     List<Map<String, Object>> allObjectsMaps;
     if (jsonArray == null || jsonArray.size() == 1) {
-      allObjectsMaps = new ArrayList<>();
-    } else {
-      Type listMapType = new TypeToken<List<Map<String, Object>>>() {
-      }.getType();
-      allObjectsMaps = new Gson().fromJson(jsonArray, listMapType);
+      return null;
     }
+    Type listMapType = new TypeToken<List<Map<String, Object>>>() {
+    }.getType();
     Gson gson = new Gson();
-    for (Map<String, Object> someObjMap : allObjectsMaps.subList(1, allObjectsMaps.size())) { // итерируемся по Map'ам объектов
+    allObjectsMaps = gson.fromJson(jsonArray, listMapType);
+    for (Map<String, Object> someObjMap : allObjectsMaps.subList(1,
+        allObjectsMaps.size())) { // итерируемся по Map'ам объектов
       int id = gson.fromJson(someObjMap.get("id").toString(), Integer.class);
       if (id == targetId) { // Проверяем, нужный ли это id
         return someObjMap;

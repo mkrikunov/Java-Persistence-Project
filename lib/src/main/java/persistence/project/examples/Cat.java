@@ -1,6 +1,9 @@
 package persistence.project.examples;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import persistence.project.annotations.ID;
 import persistence.project.annotations.SerializedClass;
 
@@ -16,6 +19,8 @@ public class Cat {
   private int id = 0;
 
   private List<Cat> kittens;
+  private Cat mother;
+  public Set<String> owners;
 
   public Cat() {
   }
@@ -25,7 +30,6 @@ public class Cat {
     setAgeAnimal(age);
     this.pet = pet;
     this.tail = tail;
-    setKittens(null);
   }
 
   @Override
@@ -33,27 +37,21 @@ public class Cat {
     return "name: " + getNameAnimal() + "\n" +
         "age: " + getAgeAnimal() + "\n" +
         "pet: " + pet + "\n" +
-        getKittensToString() +
-        "tail: " + tail;
-  }
-
-  public String getKittensToString() {
-    if (kittens == null) {
-      return "";
-    }
-    StringBuilder string = new StringBuilder("kittens: ");
-    for (Cat cat : getKittens()) {
-      string.append(cat.getNameAnimal()).append(" ");
-    }
-    return string + "\n";
+        "kittens: " + getKittens() + "\n" +
+        "tail: " + tail + "\n" +
+        "mother: " + getMother().getNameAnimal() + "\n" +
+        "owners: " + getOwners();
   }
 
   public List<Cat> getKittens() {
     return kittens;
   }
 
-  public void setKittens(List<Cat> kittens) {
-    this.kittens = kittens;
+  public void addKitten(Cat kitten) {
+    if (kittens == null) {
+      kittens = new ArrayList<>();
+    }
+    kittens.add(kitten);
   }
 
   public String getNameAnimal() {
@@ -74,5 +72,24 @@ public class Cat {
 
   public int getId() {
     return id;
+  }
+
+  public Cat getMother() {
+    return mother;
+  }
+
+  public void setMother(Cat mother) {
+    this.mother = mother;
+  }
+
+  public void addOwner(String ownerName) {
+    if (owners == null) {
+      owners = new HashSet<>();
+    }
+    owners.add(ownerName);
+  }
+
+  public Set<String> getOwners() {
+    return owners;
   }
 }

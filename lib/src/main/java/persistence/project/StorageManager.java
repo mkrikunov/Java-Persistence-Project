@@ -107,7 +107,11 @@ public class StorageManager {
   void remove(String className, int id) {
     var jsonArray = getJsonArrayByClassName(className);
     Gson gson = new Gson();
-    jsonArray.remove(gson.toJsonTree(findById(id, className, this)));
+    var foundObjectMap = findById(id, className, this);
+    if (foundObjectMap == null) {
+      return;
+    }
+    jsonArray.remove(gson.toJsonTree(foundObjectMap));
     changedClassesNames.add(className);
   }
 

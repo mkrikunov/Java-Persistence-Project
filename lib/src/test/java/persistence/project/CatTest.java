@@ -2,8 +2,6 @@ package persistence.project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import persistence.project.examples.Cat;
 import persistence.project.examples.Tail;
@@ -24,10 +22,8 @@ class CatTest {
 
     Cat murkaCat = new Cat("Murka", 2, true, Tail.Middle);
     manager.persist(murkaCat);
-    List<Cat> cats = new ArrayList<>();
-    cats.add(bayunCat);
-    cats.add(sevaCat);
-    murkaCat.setKittens(cats);
+    murkaCat.addKitten(bayunCat);
+    murkaCat.addKitten(sevaCat);
 
     try {
       manager.flush();
