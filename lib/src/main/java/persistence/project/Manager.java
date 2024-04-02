@@ -50,7 +50,5 @@ public class Manager {
     return deserializer.deserialize(targetClazz, targetId);
   }
 
-  public StorageManager getStorageManager() {
-    return this.storageManager;
-  }
+
 }

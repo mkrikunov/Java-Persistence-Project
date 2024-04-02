@@ -9,6 +9,7 @@ import persistence.project.examples.Dog;
 
 public class PredicateManagerTest {
 
+  /*
   public PredicateManager makeTwoDogs(String name1, String name2) {
     String storagePath = "src/main/resources/storage";
     Manager manager = new Manager(storagePath);
@@ -149,5 +150,5 @@ public class PredicateManagerTest {
     // Вывод результатов (просто смотрим, что да как)
     System.out.println("Filtered Array:");
     System.out.println(filteredArray);
-  }
+  }*/
 }

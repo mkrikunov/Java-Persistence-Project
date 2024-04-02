@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class StorageManager {
 
@@ -121,7 +122,108 @@ public class StorageManager {
     changedClassesNames.clear();
   }
 
-  Map<String, JsonArray> getStorage() {
-    return this.storage;
+  /**
+   * Метод для поиска в хранилище записей по предикату.
+   *
+   * @param searchPredicate - предикат
+   * @return - массив отфильтрованных записей
+   */
+  public JsonArray filter(SearchPredicate searchPredicate) {
+    Predicate<JsonElement> predicate = searchPredicate.getPredicate();
+
+    JsonArray filteredArray = new JsonArray();
+    for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
+      for (JsonElement element : entry.getValue().getAsJsonArray()) {
+        //Пропускаем элемент с currID
+        if (element.getAsJsonObject().has("currID")) {
+          continue;
+        }
+        if (predicate.test(element)) {
+          filteredArray.add(element);
+        }
+      }
+    }
+    return filteredArray;
+  }
+
+  /**
+   * Метод для поиска в хранилище записей, не соответствующих предикату.
+   *
+   * @param searchPredicate - предикат
+   * @return - массив отфильтрованных записей
+   */
+  public JsonArray filterNot(SearchPredicate searchPredicate) {
+    Predicate<JsonElement> predicate = searchPredicate.getPredicate();
+
+    JsonArray filteredArray = new JsonArray();
+    for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
+      for (JsonElement element : entry.getValue().getAsJsonArray()) {
+        //Пропускаем элемент с currID
+        if (element.getAsJsonObject().has("currID")) {
+          continue;
+        }
+        if (!predicate.test(element)) {
+          filteredArray.add(element);
+        }
+      }
+    }
+    return filteredArray;
+  }
+
+  /**
+   * Метод для поиска в хранилище записей,
+   * удовлетворяющих хотя бы одному предикату.
+   *
+   * @param searchPredicates - предикаты
+   * @return - массив отфильтрованных записей
+   */
+  public final JsonArray filterOr(SearchPredicate... searchPredicates) {
+
+    JsonArray filteredArray = new JsonArray();
+    for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
+      for (JsonElement element : entry.getValue().getAsJsonArray()) {
+        if (element.getAsJsonObject().has("currID")) {
+          continue;
+        }
+        for (SearchPredicate searchPredicate : searchPredicates) {
+          Predicate<JsonElement> predicate = searchPredicate.getPredicate();
+          if (predicate.test(element)) {
+            filteredArray.add(element);
+            break;
+          }
+        }
+      }
+    }
+    return filteredArray;
+  }
+
+  /**
+   * Метод для поиска в хранилище записей,
+   * удовлетворяющих всем предикатам.
+   *
+   * @param searchPredicates - предикаты
+   * @return - массив отфильтрованных записей
+   */
+  public final JsonArray filterAnd(SearchPredicate... searchPredicates) {
+    JsonArray filteredArray = new JsonArray();
+    for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
+      for (JsonElement element : entry.getValue().getAsJsonArray()) {
+        if (element.getAsJsonObject().has("currID")) {
+          continue;
+        }
+        boolean allMatch = true;
+        for (SearchPredicate searchPredicate : searchPredicates) {
+          Predicate<JsonElement> predicate = searchPredicate.getPredicate();
+          if (!predicate.test(element)) {
+            allMatch = false;
+            break;
+          }
+        }
+        if (allMatch) {
+          filteredArray.add(element);
+        }
+      }
+    }
+    return filteredArray;
   }
 }
