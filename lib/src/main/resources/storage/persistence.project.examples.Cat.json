@@ -1,0 +1,70 @@
+[
+  {
+    "currID": 4
+  },
+  {
+    "id": 1,
+    "fields": [
+      {
+        "tail": "Middle"
+      },
+      {
+        "nameAnimal": "Murka"
+      },
+      {
+        "ageAnimal": 2
+      },
+      {
+        "pet": true
+      }
+    ],
+    "compositeFields": [
+      {
+        "kittens": [
+          {
+            "name": "persistence.project.examples.Cat",
+            "id": 2
+          },
+          {
+            "name": "persistence.project.examples.Cat",
+            "id": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "fields": [
+      {
+        "tail": "Short"
+      },
+      {
+        "nameAnimal": "Bayun"
+      },
+      {
+        "ageAnimal": 5
+      },
+      {
+        "pet": true
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "fields": [
+      {
+        "tail": "Short"
+      },
+      {
+        "nameAnimal": "Seva"
+      },
+      {
+        "ageAnimal": 1
+      },
+      {
+        "pet": true
+      }
+    ]
+  }
+]
