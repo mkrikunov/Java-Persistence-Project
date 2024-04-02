@@ -20,7 +20,7 @@ class LibraryTest {
   }
 
   @Test
-  public void demonstrationTest() {
+  public void demonstrationTest1() {
     Manager manager = new Manager("src/main/resources/storage");
 
     Cat bayun = new Cat("Bayun", 5, true, Tail.Middle);
@@ -48,9 +48,13 @@ class LibraryTest {
     assertThat(retrievedCat)
         .usingRecursiveComparison()
         .isEqualTo(murka);
+  }
+
+  @Test
+  public void demonstrationTest2() {
+    Manager manager = new Manager("src/main/resources/storage");
 
     createCats(manager);
-
     SearchPredicate predicate = new SearchPredicate("nameAnimal", "cat", "==");
     assert manager.filter(predicate).size() == 500;
   }
