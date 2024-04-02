@@ -110,4 +110,9 @@ public class Utils {
     }
     return null;
   }
+
+  @SuppressWarnings("unchecked")
+  public static <T> Class<T> getClassByName(String className) throws ClassNotFoundException {
+    return (Class<T>) Class.forName(className);
+  }
 }

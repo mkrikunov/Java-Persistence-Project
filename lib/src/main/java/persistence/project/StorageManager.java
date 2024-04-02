@@ -128,9 +128,10 @@ public class StorageManager {
    * @param searchPredicate - предикат
    * @return - массив отфильтрованных записей
    */
-  public JsonArray filter(SearchPredicate searchPredicate) {
+  public Map<String, JsonArray> filter(SearchPredicate searchPredicate) {
     Predicate<JsonElement> predicate = searchPredicate.getPredicate();
 
+    Map<String, JsonArray> filteredMap = new HashMap<>();
     JsonArray filteredArray = new JsonArray();
     for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
       for (JsonElement element : entry.getValue().getAsJsonArray()) {
@@ -142,8 +143,11 @@ public class StorageManager {
           filteredArray.add(element);
         }
       }
+      if (!filteredArray.isEmpty()) {
+        filteredMap.put(entry.getKey(), filteredArray);
+      }
     }
-    return filteredArray;
+    return filteredMap;
   }
 
   /**
@@ -152,9 +156,10 @@ public class StorageManager {
    * @param searchPredicate - предикат
    * @return - массив отфильтрованных записей
    */
-  public JsonArray filterNot(SearchPredicate searchPredicate) {
+  public Map<String, JsonArray> filterNot(SearchPredicate searchPredicate) {
     Predicate<JsonElement> predicate = searchPredicate.getPredicate();
 
+    Map<String, JsonArray> filteredMap = new HashMap<>();
     JsonArray filteredArray = new JsonArray();
     for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
       for (JsonElement element : entry.getValue().getAsJsonArray()) {
@@ -166,8 +171,11 @@ public class StorageManager {
           filteredArray.add(element);
         }
       }
+      if (!filteredArray.isEmpty()) {
+        filteredMap.put(entry.getKey(), filteredArray);
+      }
     }
-    return filteredArray;
+    return filteredMap;
   }
 
   /**
@@ -177,8 +185,8 @@ public class StorageManager {
    * @param searchPredicates - предикаты
    * @return - массив отфильтрованных записей
    */
-  public final JsonArray filterOr(SearchPredicate... searchPredicates) {
-
+  public Map<String, JsonArray> filterOr(SearchPredicate... searchPredicates) {
+    Map<String, JsonArray> filteredMap = new HashMap<>();
     JsonArray filteredArray = new JsonArray();
     for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
       for (JsonElement element : entry.getValue().getAsJsonArray()) {
@@ -193,8 +201,11 @@ public class StorageManager {
           }
         }
       }
+      if (!filteredArray.isEmpty()) {
+        filteredMap.put(entry.getKey(), filteredArray);
+      }
     }
-    return filteredArray;
+    return filteredMap;
   }
 
   /**
@@ -204,7 +215,8 @@ public class StorageManager {
    * @param searchPredicates - предикаты
    * @return - массив отфильтрованных записей
    */
-  public final JsonArray filterAnd(SearchPredicate... searchPredicates) {
+  public Map<String, JsonArray> filterAnd(SearchPredicate... searchPredicates) {
+    Map<String, JsonArray> filteredMap = new HashMap<>();
     JsonArray filteredArray = new JsonArray();
     for (Map.Entry<String, JsonArray> entry: storage.entrySet()) {
       for (JsonElement element : entry.getValue().getAsJsonArray()) {
@@ -223,7 +235,10 @@ public class StorageManager {
           filteredArray.add(element);
         }
       }
+      if (!filteredArray.isEmpty()) {
+        filteredMap.put(entry.getKey(), filteredArray);
+      }
     }
-    return filteredArray;
+    return filteredMap;
   }
 }
